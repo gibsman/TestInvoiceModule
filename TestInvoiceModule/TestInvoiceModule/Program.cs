@@ -16,20 +16,7 @@ namespace TestInvoiceModule
         {
             SmtpClient client = InitializeSmtpClient();
             Document invoiceDoc = InitializeInvoiceDocument();
-            double totalTime = 0;
-            for (int id = 0; id < 100; id++)
-            {
-                ConvertDocToPdf(invoiceDoc, id.ToString());
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                string pdfName = id + ".pdf";
-                SendMail(pdfName, ConfigurationManager.AppSettings["TestMail"], client);
-                watch.Stop();
-                double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                totalTime += oneClientTime;
-                Console.WriteLine(oneClientTime);
-            }
-            client.Disconnect(true);
-            Console.WriteLine(totalTime);
+            ProcessOrders(client, invoiceDoc);
         }
 
         private static SmtpClient InitializeSmtpClient()
@@ -46,6 +33,24 @@ namespace TestInvoiceModule
             Document document = new Document();
             document.LoadFromFile("invoice_template.docx");
             return document;
+        }
+
+        private static void ProcessOrders(SmtpClient client, Document invoiceDoc)
+        {
+            double totalTime = 0;
+            for (int id = 0; id < 100; id++)
+            {
+                ConvertDocToPdf(invoiceDoc, id.ToString());
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                string pdfName = id + ".pdf";
+                SendMail(pdfName, ConfigurationManager.AppSettings["TestMail"], client);
+                watch.Stop();
+                double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
+                totalTime += oneClientTime;
+                Console.WriteLine(oneClientTime);
+            }
+            client.Disconnect(true);
+            Console.WriteLine(totalTime);
         }
 
         private static void ConvertDocToPdf(Document originalInvoice, string id)
