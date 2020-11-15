@@ -47,7 +47,8 @@ namespace TestInvoiceModule
                 FillInInvoice(invoiceDoc, curOrder);
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 string pdfName = curOrder.id + ".pdf";
-                SendMail(pdfName, ConfigurationManager.AppSettings["TestMail"], client);
+                SendMail(pdfName, curOrder.client.name, ConfigurationManager.AppSettings["TestMail"], 
+                    curOrder.id.ToString(), client);
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
                 Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
@@ -97,12 +98,12 @@ namespace TestInvoiceModule
             invoiceCopy.SaveToFile(order.id + ".PDF", FileFormat.PDF);
         }
 
-        private static void SendMail(string pdfPath, string recipientMail, SmtpClient client)
+        private static void SendMail(string pdfPath, string clientName, string recipientMail, string orderNum, SmtpClient client)
         {
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
-            mailMessage.To.Add(new MailboxAddress("Placeholder Guy", recipientMail));
-            mailMessage.Subject = "Invoice For Order";
+            mailMessage.To.Add(new MailboxAddress(clientName, recipientMail));
+            mailMessage.Subject = "Invoice For Order №" + orderNum;
             var attachment = new MimePart("application", "pdf")
             {
                 Content = new MimeContent(File.OpenRead(pdfPath), ContentEncoding.Default),
