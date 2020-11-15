@@ -41,20 +41,20 @@ namespace TestInvoiceModule
         private static void ProcessOrders(SmtpClient client, Document invoiceDoc)
         {
             TestData testData = new TestData();
-            List<Order> orders = testData.GenerateRandomTestOrders();
+            List<Order> orders = testData.GenerateRandomTestOrders(100);
             Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
             double totalTime = 0;
             for (int i = 0; i < orders.Count; i++)
             {
                 Order curOrder = orders[i];
-                FillInInvoice(invoiceDoc, curOrder);
                 var watch = System.Diagnostics.Stopwatch.StartNew();
+                FillInInvoice(invoiceDoc, curOrder);
                 string pdfName = curOrder.id + ".pdf";
                 SendMail(pdfName, curOrder.client.name, ConfigurationManager.AppSettings["TestMail"], 
                     curOrder.id.ToString(), client);
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.1 seconds...");
+                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
                 Thread.Sleep(500);
                 totalTime += oneClientTime + 0.1;
             }
@@ -68,8 +68,8 @@ namespace TestInvoiceModule
             Document invoiceCopy = originalInvoice.Clone();
 
             invoiceCopy.Replace("order_id", order.id.ToString(), true, true);
-            invoiceCopy.Replace("order_date", order.orderDate.ToString(), true, true);
-            invoiceCopy.Replace("order_due_date", order.dueDate.ToString(), true, true);
+            invoiceCopy.Replace("order_date", order.orderDate.ToString("dd/MM/yyyy"), true, true);
+            invoiceCopy.Replace("order_due_date", order.dueDate.ToString("dd/MM/yyyy"), true, true);
             invoiceCopy.Replace("total_amount", "$ " + order.totalAmount.ToString(), true, true);
 
             Client client = order.client;

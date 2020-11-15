@@ -19,7 +19,12 @@ namespace TestInvoiceModule
         public List<Order> GenerateRandomTestOrders()
         {
             Random rand = new Random();
-            int orderListCount = rand.Next(1, 100);
+            return GenerateRandomTestOrders(rand.Next());
+        }
+
+        public List<Order> GenerateRandomTestOrders(int orderListCount)
+        {
+            Random rand = new Random();
             List<Order> testOrders = new List<Order>();
             for (int i = 0; i < orderListCount; i++)
             {
