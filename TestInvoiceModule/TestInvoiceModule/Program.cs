@@ -17,7 +17,9 @@ namespace TestInvoiceModule
         {
             SmtpClient client = InitializeSmtpClient();
             Document invoiceDoc = InitializeInvoiceDocument();
-            ProcessOrders(client, invoiceDoc);
+            TestData testData = new TestData();
+            List<Order> orders = testData.GenerateRandomTestOrders();
+            ProcessOrders(orders, client, invoiceDoc);
         }
 
         private static SmtpClient InitializeSmtpClient()
@@ -36,18 +38,19 @@ namespace TestInvoiceModule
             return document;
         }
 
-        private static void ProcessOrders(SmtpClient client, Document invoiceDoc)
+        private static void ProcessOrders(List<Order> orders, SmtpClient client, Document invoiceDoc)
         {
             double totalTime = 0;
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < orders.Count; i++)
             {
-                //FillInInvoice(invoiceDoc, curOrder);
+                Order curOrder = orders[i];
+                FillInInvoice(invoiceDoc, curOrder);
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                string pdfName = i + ".pdf";
+                string pdfName = curOrder.id + ".pdf";
                 SendMail(pdfName, ConfigurationManager.AppSettings["TestMail"], client);
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                Console.WriteLine("Order " + i + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
+                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
                 Thread.Sleep(500);
                 totalTime += oneClientTime + 1;
             }
