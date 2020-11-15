@@ -8,6 +8,7 @@ using Spire.Doc;
 using Spire.Doc.Documents;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
@@ -15,20 +16,15 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            SmtpClient client = InitializeSmtpClient();
+            //SmtpClient client = InitializeSmtpClient();
             Document invoiceDoc = LoadInvoiceDocument();
-            ProcessOrders(client, invoiceDoc);
+            ProcessOrders(invoiceDoc);
         }
 
-        private static SmtpClient InitializeSmtpClient()
-        {
-            var client = new SmtpClient();
-            client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-            client.Authenticate(ConfigurationManager.AppSettings["UserMail"],
-                ConfigurationManager.AppSettings["Password"]);
-            Console.WriteLine("SMTP client initialized");
-            return client;
-        }
+        //private static SmtpClient InitializeSmtpClient()
+        //{
+        //    //return client;
+        //}
 
         private static Document LoadInvoiceDocument()
         {
@@ -38,27 +34,27 @@ namespace TestInvoiceModule
             return document;
         }
 
-        private static void ProcessOrders(SmtpClient client, Document invoiceDoc)
+        private static void ProcessOrders(Document invoiceDoc)
         {
             TestData testData = new TestData();
             List<Order> orders = testData.GenerateRandomTestOrders(100);
             Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
             double totalTime = 0;
+            Task[] mailTasks = new Task[orders.Count];
             for (int i = 0; i < orders.Count; i++)
             {
                 Order curOrder = orders[i];
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 FillInInvoice(invoiceDoc, curOrder);
                 string pdfName = curOrder.id + ".pdf";
-                SendMail(pdfName, curOrder.client.name, ConfigurationManager.AppSettings["TestMail"], 
-                    curOrder.id.ToString(), client);
+                mailTasks[i] = SendMail(pdfName, curOrder.client.name, ConfigurationManager.AppSettings["TestMail"], 
+                    curOrder.id.ToString());
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
-                Thread.Sleep(500);
-                totalTime += oneClientTime + 0.1;
+                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec.");
+                totalTime += oneClientTime;
             }
-            client.Disconnect(true);
+            Task.WaitAll(mailTasks);
             Console.WriteLine("Order batch processed!");
             Console.WriteLine("Total time elapsed: " + totalTime + " sec");
         }
@@ -101,7 +97,7 @@ namespace TestInvoiceModule
             invoiceCopy.SaveToFile(order.id + ".PDF", FileFormat.PDF);
         }
 
-        private static void SendMail(string pdfPath, string clientName, string recipientMail, string orderNum, SmtpClient client)
+        private static async Task SendMail(string pdfPath, string clientName, string recipientMail, string orderNum)
         {
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
@@ -118,8 +114,14 @@ namespace TestInvoiceModule
             multipart.Add(attachment);
             mailMessage.Body = multipart;
 
-            var options = FormatOptions.Default.Clone();
-            client.Send(options, mailMessage);
+            using (var client = new SmtpClient())
+            {
+                client.Connect("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
+                client.Authenticate(ConfigurationManager.AppSettings["UserMail"],
+                    ConfigurationManager.AppSettings["Password"]);
+                var options = FormatOptions.Default.Clone();
+                await client.SendAsync(options, mailMessage);
+            }
         }
     }
 }
