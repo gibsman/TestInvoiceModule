@@ -47,10 +47,11 @@ namespace TestInvoiceModule
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
                 totalTime += oneClientTime;
-                Console.WriteLine(oneClientTime);
+                Console.WriteLine("Client " + id + " processed in " + oneClientTime + " sec");
             }
             client.Disconnect(true);
-            Console.WriteLine(totalTime);
+            Console.WriteLine("All clients processed!");
+            Console.WriteLine("Total time elapsed: " + totalTime + " sec");
         }
 
         private static void ConvertDocToPdf(Document originalInvoice, string id)
