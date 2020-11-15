@@ -16,15 +16,9 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            //SmtpClient client = InitializeSmtpClient();
             Document invoiceDoc = LoadInvoiceDocument();
             ProcessOrders(invoiceDoc);
         }
-
-        //private static SmtpClient InitializeSmtpClient()
-        //{
-        //    //return client;
-        //}
 
         private static Document LoadInvoiceDocument()
         {
@@ -116,8 +110,8 @@ namespace TestInvoiceModule
 
             using (var client = new SmtpClient())
             {
-                client.Connect("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
-                client.Authenticate(ConfigurationManager.AppSettings["UserMail"],
+                await client.ConnectAsync("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
+                await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
                     ConfigurationManager.AppSettings["Password"]);
                 var options = FormatOptions.Default.Clone();
                 await client.SendAsync(options, mailMessage);
