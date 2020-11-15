@@ -1,4 +1,4 @@
-﻿namespace TestInvoiceModule.Entities
+﻿namespace TestInvoiceModule
 {
     public class OrderProduct
     {
