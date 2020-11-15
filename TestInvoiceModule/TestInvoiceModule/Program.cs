@@ -6,6 +6,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Spire.Doc;
 using Spire.Doc.Documents;
+using System.Collections.Generic;
 
 namespace TestInvoiceModule
 {
@@ -13,23 +14,34 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            SmtpClient client = InitializeClient();
-            Document invoiceDoc = InitializeInvoice();
-            for (int id = 0; id < 10; id++)
+            SmtpClient client = InitializeSmtpClient();
+            Document invoiceDoc = InitializeInvoiceDocument();
+            double totalTime = 0;
+            for (int id = 0; id < 100; id++)
             {
                 ConvertDocToPdf(invoiceDoc, id.ToString());
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 string pdfName = id + ".pdf";
                 SendMail(pdfName, ConfigurationManager.AppSettings["TestMail"], client);
                 watch.Stop();
-                Console.WriteLine((double)watch.ElapsedMilliseconds / 1000);
-                File.Delete(pdfName);
+                double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
+                totalTime += oneClientTime;
+                Console.WriteLine(oneClientTime);
             }
             client.Disconnect(true);
-            Console.WriteLine("DONE");
+            Console.WriteLine(totalTime);
         }
 
-        private static Document InitializeInvoice()
+        private static SmtpClient InitializeSmtpClient()
+        {
+            var client = new SmtpClient();
+            client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
+            client.Authenticate(ConfigurationManager.AppSettings["UserMail"],
+                ConfigurationManager.AppSettings["Password"]);
+            return client;
+        }
+
+        private static Document InitializeInvoiceDocument()
         {
             Document document = new Document();
             document.LoadFromFile("invoice_template.docx");
@@ -43,21 +55,12 @@ namespace TestInvoiceModule
             invoiceCopy.SaveToFile(id + ".PDF", FileFormat.PDF);
         }
 
-        private static SmtpClient InitializeClient()
-        {
-            var client = new SmtpClient();
-            client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-            client.Authenticate(ConfigurationManager.AppSettings["UserMail"], 
-                ConfigurationManager.AppSettings["Password"]);
-            return client;
-        }
-
         private static void SendMail(string pdfPath, string recipientMail, SmtpClient client)
         {
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
             mailMessage.To.Add(new MailboxAddress("Placeholder Guy", recipientMail));
-            mailMessage.Subject = "Invoce For Order";
+            mailMessage.Subject = "Invoice For Order";
             var attachment = new MimePart("application", "pdf")
             {
                 Content = new MimeContent(File.OpenRead(pdfPath), ContentEncoding.Default),
