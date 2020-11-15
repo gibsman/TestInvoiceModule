@@ -16,10 +16,8 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             SmtpClient client = InitializeSmtpClient();
-            Document invoiceDoc = InitializeInvoiceDocument();
-            TestData testData = new TestData();
-            List<Order> orders = testData.GenerateRandomTestOrders();
-            ProcessOrders(orders, client, invoiceDoc);
+            Document invoiceDoc = LoadInvoiceDocument();
+            ProcessOrders(client, invoiceDoc);
         }
 
         private static SmtpClient InitializeSmtpClient()
@@ -28,18 +26,23 @@ namespace TestInvoiceModule
             client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
             client.Authenticate(ConfigurationManager.AppSettings["UserMail"],
                 ConfigurationManager.AppSettings["Password"]);
+            Console.WriteLine("SMTP client initialized");
             return client;
         }
 
-        private static Document InitializeInvoiceDocument()
+        private static Document LoadInvoiceDocument()
         {
             Document document = new Document();
             document.LoadFromFile("invoice_template.docx");
+            Console.WriteLine("Invoice template loaded");
             return document;
         }
 
-        private static void ProcessOrders(List<Order> orders, SmtpClient client, Document invoiceDoc)
+        private static void ProcessOrders(SmtpClient client, Document invoiceDoc)
         {
+            TestData testData = new TestData();
+            List<Order> orders = testData.GenerateRandomTestOrders();
+            Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
             double totalTime = 0;
             for (int i = 0; i < orders.Count; i++)
             {
@@ -51,12 +54,12 @@ namespace TestInvoiceModule
                     curOrder.id.ToString(), client);
                 watch.Stop();
                 double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.5 seconds...");
+                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec. Waiting 0.1 seconds...");
                 Thread.Sleep(500);
-                totalTime += oneClientTime + 1;
+                totalTime += oneClientTime + 0.1;
             }
             client.Disconnect(true);
-            Console.WriteLine("All clients processed!");
+            Console.WriteLine("Order batch processed!");
             Console.WriteLine("Total time elapsed: " + totalTime + " sec");
         }
 
