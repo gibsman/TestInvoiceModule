@@ -16,8 +16,19 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            Document invoiceDoc = LoadInvoiceDocument();
-            ProcessOrders(invoiceDoc);
+            TestData testData = new TestData();
+            List<Order> orders = testData.GenerateRandomTestOrders(5);
+            for (int i = 0; i < orders.Count; i++)
+            {
+                Order curOrder = orders[i];
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                InvoiceGenerator.Generate(curOrder);
+                watch.Stop();
+                double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
+                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec.");
+            }
+            //Document invoiceDoc = LoadInvoiceDocument();
+            //ProcessOrders(invoiceDoc);
         }
 
         private static Document LoadInvoiceDocument()
