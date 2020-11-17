@@ -16,6 +16,8 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
+            TestData testData = new TestData();
+            InvoiceGenerator.Generate(testData.GenerateRandomTestOrders(10)[0]);
             ProcessOrders();
         }
 
