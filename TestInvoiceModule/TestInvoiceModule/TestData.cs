@@ -30,14 +30,14 @@ namespace TestInvoiceModule
             {
                 List<Product> shuffledProducts = new List<Product>(testProducts);
                 ShuffleProductList(shuffledProducts, rand);
-                int orderProductCount = rand.Next(1, 11);
+                int orderProductCount = rand.Next(1, testProducts.Count + 1);
                 List<OrderProduct> orderProducts = new List<OrderProduct>();
                 for (int j = 0; j < orderProductCount; j++)
                 {
                     Product randomProduct = shuffledProducts[j];
                     orderProducts.Add(new OrderProduct(randomProduct, rand.Next(1, 31)));
                 }
-                Client randomClient = testClients[rand.Next(10)];
+                Client randomClient = testClients[rand.Next(testClients.Count)];
                 testOrders.Add(new Order(orderId, randomClient, DateTime.Now, orderProducts));
                 orderId++;
             }

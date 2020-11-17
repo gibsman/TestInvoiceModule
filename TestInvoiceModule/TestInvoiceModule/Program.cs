@@ -24,7 +24,8 @@ namespace TestInvoiceModule
         private static void ProcessOrders()
         {
             TestData testData = new TestData();
-            List<Order> orders = testData.GenerateRandomTestOrders(100);
+            int orderCount = 100;
+            List<Order> orders = testData.GenerateRandomTestOrders(orderCount);
             Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //generate all PDF invoices concurrently
