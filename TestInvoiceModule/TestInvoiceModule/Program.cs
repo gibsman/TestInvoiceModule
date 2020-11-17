@@ -16,7 +16,7 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-
+            ProcessOrders();
         }
 
         private static void ProcessOrders()
@@ -24,24 +24,16 @@ namespace TestInvoiceModule
             TestData testData = new TestData();
             List<Order> orders = testData.GenerateRandomTestOrders(100);
             Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
-            double totalTime = 0;
-            Task[] mailTasks = new Task[orders.Count];
-            for (int i = 0; i < orders.Count; i++)
-            {
-                Order curOrder = orders[i];
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                string pdfName = curOrder.id + ".pdf";
-                mailTasks[i] = SendMail(pdfName, curOrder.client.name, ConfigurationManager.AppSettings["TestMail"], 
-                    curOrder.id.ToString());
-                watch.Stop();
-                double oneClientTime = (double)watch.ElapsedMilliseconds / 1000;
-                Console.WriteLine("Order " + curOrder.id + " processed in " + oneClientTime + " sec.");
-                totalTime += oneClientTime;
-            }
-            Task.WaitAll(mailTasks);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            //generate all PDF invoices concurrently
+            Parallel.ForEach(orders, order => InvoiceGenerator.Generate(order));
+            //Task[] mailTasks = new Task[orders.Count];
+            //Task.WaitAll(mailTasks);
             Console.WriteLine("Order batch processed!");
-            Console.WriteLine("Total time elapsed: " + totalTime + " sec");
+            watch.Stop();
+            Console.WriteLine("Total time elapsed: " + (double)watch.ElapsedMilliseconds / 1000 + " sec");
         }
+
 
         private static async Task SendMail(string pdfPath, string clientName, string recipientMail, string orderNum)
         {
