@@ -27,15 +27,23 @@ namespace TestInvoiceModule
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //generate all PDF invoices concurrently
             Parallel.ForEach(orders, order => InvoiceGenerator.Generate(order));
-            //Task[] mailTasks = new Task[orders.Count];
-            //Task.WaitAll(mailTasks);
-            Console.WriteLine("Order batch processed!");
+            SendMailBatch(orders);
             watch.Stop();
+            Console.WriteLine("Order batch processed!");
             Console.WriteLine("Total time elapsed: " + (double)watch.ElapsedMilliseconds / 1000 + " sec");
         }
 
+        private static void SendMailBatch(List<Order> orders)
+        {
+            Task[] mailTasks = new Task[orders.Count];
+            for (int i = 0; i < orders.Count; i++)
+            {
+                mailTasks[i] = SendMail(orders[i].id.ToString(), orders[i].client.name, ConfigurationManager.AppSettings["TestMail"]);
+            }
+            Task.WaitAll(mailTasks);
+        }
 
-        private static async Task SendMail(string pdfPath, string clientName, string recipientMail, string orderNum)
+        private static async Task SendMail(string orderNum, string clientName, string recipientMail)
         {
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
@@ -43,10 +51,10 @@ namespace TestInvoiceModule
             mailMessage.Subject = "Invoice For Order №" + orderNum;
             var attachment = new MimePart("application", "pdf")
             {
-                Content = new MimeContent(File.OpenRead(pdfPath), ContentEncoding.Default),
+                Content = new MimeContent(File.OpenRead(orderNum + ".pdf"), ContentEncoding.Default),
                 ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
                 ContentTransferEncoding = ContentEncoding.Base64,
-                FileName = Path.GetFileName(pdfPath)
+                FileName = Path.GetFileName(orderNum + ".pdf")
             };
             var multipart = new Multipart("mixed");
             multipart.Add(attachment);
