@@ -17,6 +17,7 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             TestData testData = new TestData();
+            //this used to speed up future pdf generation
             InvoiceGenerator.Generate(testData.GenerateRandomTestOrders(1)[0]);
             ProcessOrders();
         }
@@ -30,10 +31,17 @@ namespace TestInvoiceModule
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //generates all PDF invoices concurrently
             Parallel.ForEach(orders, order => InvoiceGenerator.Generate(order));
-            //SendMailBatch(orders);
             watch.Stop();
+            double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
+            watch.Reset();
+            watch.Start();
+            SendMailBatch(orders);
+            watch.Stop();
+            double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
             Console.WriteLine("Order batch processed!");
-            Console.WriteLine("Total time elapsed: " + (double)watch.ElapsedMilliseconds / 1000 + " sec");
+            Console.WriteLine("Time spent on PDF generation: " + pdfGenerationTime + " sec");
+            Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");
+            Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
         }
 
         private static void SendMailBatch(List<Order> orders)
@@ -70,6 +78,7 @@ namespace TestInvoiceModule
                     ConfigurationManager.AppSettings["Password"]);
                 var options = FormatOptions.Default.Clone();
                 await client.SendAsync(options, mailMessage);
+                await client.DisconnectAsync(true);
             }
         }
     }

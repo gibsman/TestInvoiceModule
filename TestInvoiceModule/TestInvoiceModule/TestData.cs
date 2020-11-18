@@ -44,7 +44,7 @@ namespace TestInvoiceModule
             return testOrders;
         }
 
-        public static void ShuffleProductList(List<Product> products, Random rand)
+        private static void ShuffleProductList(List<Product> products, Random rand)
         {
             int n = products.Count;
             while (n > 1)
