@@ -20,7 +20,8 @@ namespace TestInvoiceModule
             invoice.Info.Author = "Placeholder Company";
             DefineStyles(invoice);
             AddCompanyInfo(invoice);
-            AddProductsTable(invoice, order.orderProducts);
+            AddClientInfo(invoice, order.client);
+            AddProductsTable(invoice, order.orderProducts, order.totalAmount.ToString());
             PdfDocumentRenderer renderer = new PdfDocumentRenderer(true)
             {
                 Document = invoice
@@ -66,16 +67,21 @@ namespace TestInvoiceModule
 
         }
 
-        private static void AddClientInfo(Document invoice)
+        private static void AddClientInfo(Document invoice, Client client)
         {
-
+            invoice.LastSection.AddParagraph("BILLED TO", "SectionHeader");
+            invoice.LastSection.AddParagraph(client.name);
+            invoice.LastSection.AddParagraph(client.mail);
+            invoice.LastSection.AddParagraph(client.address);
+            invoice.LastSection.AddParagraph(client.phone);
         }
+
         private static void AddOrderInfo(Document invoice)
         {
 
         }
 
-        private static void AddProductsTable(Document invoice, List<OrderProduct> orderProducts)
+        private static void AddProductsTable(Document invoice, List<OrderProduct> orderProducts, string totalAmount)
         {
             Table table = new Table();
             table.Format.Font.Size = 10;
@@ -109,6 +115,16 @@ namespace TestInvoiceModule
             table.Rows.LeftIndent = 100;
 
             invoice.LastSection.Add(table);
+            Paragraph invoiceTotalPar = new Paragraph();
+            invoiceTotalPar.Format.Alignment = ParagraphAlignment.Right;
+            invoiceTotalPar.Style = "SectionHeader";
+            invoiceTotalPar.AddText("INVOICE TOTAL");
+            invoice.LastSection.Add(invoiceTotalPar);
+            Paragraph totalNumPar = new Paragraph();
+            totalNumPar.Format.Alignment = ParagraphAlignment.Right;
+            totalNumPar.Format.Font.Size = 18;
+            totalNumPar.AddText("$" + totalAmount);
+            invoice.LastSection.Add(totalNumPar);
         }
     }
 }
