@@ -17,7 +17,7 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             TestData testData = new TestData();
-            InvoiceGenerator.Generate(testData.GenerateRandomTestOrders(10)[0]);
+            InvoiceGenerator.Generate(testData.GenerateRandomTestOrders(1)[0]);
             ProcessOrders();
         }
 
@@ -28,9 +28,9 @@ namespace TestInvoiceModule
             List<Order> orders = testData.GenerateRandomTestOrders(orderCount);
             Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            //generate all PDF invoices concurrently
+            //generates all PDF invoices concurrently
             Parallel.ForEach(orders, order => InvoiceGenerator.Generate(order));
-            SendMailBatch(orders);
+            //SendMailBatch(orders);
             watch.Stop();
             Console.WriteLine("Order batch processed!");
             Console.WriteLine("Total time elapsed: " + (double)watch.ElapsedMilliseconds / 1000 + " sec");
