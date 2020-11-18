@@ -1,6 +1,8 @@
 ﻿using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
+using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System;
@@ -21,14 +23,15 @@ namespace TestInvoiceModule
             DefineStyles(invoice);
             AddCompanyInfo(invoice);
             AddClientInfo(invoice, order.client);
-            AddOrderInfo(invoice, order.id.ToString(), order.orderDate.ToString("dd.MM.yyyy"), 
-                order.dueDate.ToString("dd.MM.yyyy"));
-            AddProductsTable(invoice, order.orderProducts, order.totalAmount.ToString());
+            TextFrame orderInfoFrame = AddOrderInfo(order.id.ToString(), order.orderDate.ToString("dd.MM.yyyy"));
+            TextFrame tableFrame = AddProductsTable(order.orderProducts);
+            PlaceOrderInfoAndProductsTableOnSameLine(invoice, orderInfoFrame, tableFrame, order.totalAmount.ToString());
+            AddTerms(invoice, order.dueDate.ToString("dd.MM.yyyy"));
             PdfDocumentRenderer renderer = new PdfDocumentRenderer(true)
             {
                 Document = invoice
             };
-            renderer.RenderDocument();
+            DrawRectangles(renderer);
             string filename = order.id + ".pdf";
             renderer.PdfDocument.Save(filename);
         }
@@ -37,19 +40,25 @@ namespace TestInvoiceModule
             //"Normal" defines default style
             Style style = invoice.Styles["Normal"];
             style.Font.Name = "Arial";
-            style.Font.Size = 9;
+            style.Font.Size = 11;
+            style.ParagraphFormat.SpaceAfter = 1.2;
 
             style = invoice.Styles.AddStyle("MainHeader", "Normal");
-            style.Font.Size = 28;
+            style.Font.Size = 40;
             style.Font.Color = new Color(78, 83, 92);
 
             style = invoice.Styles.AddStyle("SectionHeader", "Normal");
+            style.ParagraphFormat.SpaceBefore = 20;
+            style.Font.Size = 10;
             style.Font.Bold = true;
             style.Font.Color = new Color(153, 153, 153);
 
             style = invoice.Styles.AddStyle("TableContent", "Normal");
             style.Font.Bold = true;
             style.Font.Color = Colors.White;
+
+            style = invoice.Styles.AddStyle("ClientPadding", "Normal");
+            style.ParagraphFormat.SpaceAfter = 20;
         }
 
 
@@ -59,14 +68,21 @@ namespace TestInvoiceModule
             invoice.LastSection.AddParagraph("INVOICE", "MainHeader");
 
             Paragraph companyName = new Paragraph();
+            companyName.Format.SpaceBefore = 10;
+            companyName.Format.SpaceAfter = 10;
             companyName.AddText("Placeholder Company");
             companyName.Format.Font.Size = 20;
             invoice.LastSection.Add(companyName);
 
-            invoice.LastSection.AddParagraph("12 Threefour st, New Bork");
-            invoice.LastSection.AddParagraph("123-456-7890");
-            invoice.LastSection.AddParagraph("placeholderco@net.com");
-
+            //places two paragraphs on the same line
+            Table table = new Table();
+            table.AddColumn(Unit.FromCentimeter(4));
+            table.AddColumn(Unit.FromCentimeter(4));
+            Row row = table.AddRow();
+            row[0].AddParagraph("12 Threefour st, New Bork");
+            row[1].AddParagraph("123-456-7890");
+            row[1].AddParagraph("placeholderco@net.com");
+            invoice.LastSection.Add(table);
         }
 
         private static void AddClientInfo(Document invoice, Client client)
@@ -75,21 +91,51 @@ namespace TestInvoiceModule
             invoice.LastSection.AddParagraph(client.name);
             invoice.LastSection.AddParagraph(client.mail);
             invoice.LastSection.AddParagraph(client.address);
-            invoice.LastSection.AddParagraph(client.phone);
+            invoice.LastSection.AddParagraph(client.phone, "ClientPadding");
         }
 
-        private static void AddOrderInfo(Document invoice, string orderId, string orderDate, string dueDate)
+        private static void PlaceOrderInfoAndProductsTableOnSameLine(Document invoice, TextFrame orderInfoFrame,
+            TextFrame tableFrame, string totalAmount)
         {
-            invoice.LastSection.AddParagraph("INVOICE NUMBER", "SectionHeader");
-            invoice.LastSection.AddParagraph(orderId);
-            invoice.LastSection.AddParagraph("DATE OF ISSUE", "SectionHeader");
-            invoice.LastSection.AddParagraph(orderDate);
-            invoice.LastSection.AddParagraph("TERMS", "SectionHeader");
-            invoice.LastSection.AddParagraph("E.g. please pay invoice by " + dueDate);
+            Table table = new Table();
+            table.AddColumn(Unit.FromCentimeter(4));
+            table.AddColumn(Unit.FromCentimeter(20));
+            Row row = table.AddRow();
+            row[0].Add(orderInfoFrame);
+            row[1].Add(tableFrame);
+            invoice.LastSection.Add(table);
 
+            Paragraph invoiceTotalPar = new Paragraph();
+            invoiceTotalPar.Format.Alignment = ParagraphAlignment.Right;
+            invoiceTotalPar.Style = "SectionHeader";
+            invoiceTotalPar.AddText("INVOICE TOTAL");
+            invoice.LastSection.Add(invoiceTotalPar);
+            Paragraph totalNumPar = new Paragraph();
+            totalNumPar.Format.Alignment = ParagraphAlignment.Right;
+            totalNumPar.Format.Font.Size = 18;
+            totalNumPar.AddText("$" + totalAmount);
+            invoice.LastSection.Add(totalNumPar);
         }
 
-        private static void AddProductsTable(Document invoice, List<OrderProduct> orderProducts, string totalAmount)
+        private static TextFrame AddOrderInfo(string orderId, string orderDate)
+        {
+            TextFrame orderInfoFrame = new TextFrame();
+            Paragraph invoiceNumPar = new Paragraph();
+            invoiceNumPar.Style = "SectionHeader";
+            invoiceNumPar.Format.SpaceBefore = 0;
+            invoiceNumPar.AddText("INVOICE NUMBER");
+            orderInfoFrame.Add(invoiceNumPar);
+            orderInfoFrame.AddParagraph(orderId);
+            Paragraph invoiceOrdDate = new Paragraph();
+            invoiceOrdDate.Style = "SectionHeader";
+            invoiceOrdDate.AddText("DATE OF ISSUE");
+            orderInfoFrame.Add(invoiceOrdDate);
+            orderInfoFrame.AddParagraph(orderDate);
+            return orderInfoFrame;
+        }
+
+
+        private static TextFrame AddProductsTable(List<OrderProduct> orderProducts)
         {
             Table table = new Table();
             table.Format.Font.Size = 10;
@@ -104,7 +150,7 @@ namespace TestInvoiceModule
 
             Row row = table.AddRow();
             row.Style = "TableContent";
-            row.Shading.Color = new Color(13, 131, 221);
+            row.Shading.Color = Colors.DodgerBlue;
             row.Height = Unit.FromCentimeter(0.8);
             string[] tableHeaders = new string[] { "DESCRIPTION", "UNIT COST", "QUANTITY", "AMOUNT" };
             for (int i = 0; i < tableHeaders.Length; i++)
@@ -120,19 +166,41 @@ namespace TestInvoiceModule
                 row.Cells[2].AddParagraph(orderProducts[i].quantity.ToString());
                 row.Cells[3].AddParagraph("$" + orderProducts[i].totalAmount.ToString());
             }
-            table.Rows.LeftIndent = 100;
+            TextFrame tableFrame = new TextFrame();
+            tableFrame.Height = Unit.FromCentimeter(0.8) * table.Rows.Count;
+            tableFrame.Add(table);
+            return tableFrame;
+        }
 
-            invoice.LastSection.Add(table);
-            Paragraph invoiceTotalPar = new Paragraph();
-            invoiceTotalPar.Format.Alignment = ParagraphAlignment.Right;
-            invoiceTotalPar.Style = "SectionHeader";
-            invoiceTotalPar.AddText("INVOICE TOTAL");
-            invoice.LastSection.Add(invoiceTotalPar);
-            Paragraph totalNumPar = new Paragraph();
-            totalNumPar.Format.Alignment = ParagraphAlignment.Right;
-            totalNumPar.Format.Font.Size = 18;
-            totalNumPar.AddText("$" + totalAmount);
-            invoice.LastSection.Add(totalNumPar);
+        private static void AddTerms(Document invoice, string dueDate)
+        {
+            TextFrame termFrame = new TextFrame();
+            Paragraph termParagraph = new Paragraph();
+            termParagraph.AddFormattedText("TERMS\n", "SectionHeader");
+            termParagraph.AddText("E.g. please pay invoice by " + dueDate);
+            termFrame.Add(termParagraph);
+            termFrame.Width = 400;
+            termFrame.WrapFormat.DistanceTop = 700;
+            termFrame.RelativeVertical = RelativeVertical.Page;
+            termFrame.WrapFormat.Style = WrapStyle.Through;
+            invoice.LastSection.Add(termFrame);
+        }
+
+        private static void DrawRectangles(PdfDocumentRenderer renderer)
+        {
+            renderer.RenderDocument();
+            PdfDocument document = renderer.PdfDocument;
+            int recHeight = 35;
+            int margin = 10;
+            for (int i = 0; i < document.PageCount; i++)
+            {
+                PdfPage page = document.Pages[i];
+                using (XGraphics gfx = XGraphics.FromPdfPage(page))
+                {
+                    gfx.DrawRectangle(XBrushes.DodgerBlue, 0, margin, page.Width, recHeight);
+                    gfx.DrawRectangle(XBrushes.DodgerBlue, 0, page.Height - margin - recHeight, page.Width, recHeight);
+                }
+            }
         }
     }
 }
