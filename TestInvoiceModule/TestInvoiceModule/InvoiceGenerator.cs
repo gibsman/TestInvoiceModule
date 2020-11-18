@@ -21,6 +21,8 @@ namespace TestInvoiceModule
             DefineStyles(invoice);
             AddCompanyInfo(invoice);
             AddClientInfo(invoice, order.client);
+            AddOrderInfo(invoice, order.id.ToString(), order.orderDate.ToString("dd.MM.yyyy"), 
+                order.dueDate.ToString("dd.MM.yyyy"));
             AddProductsTable(invoice, order.orderProducts, order.totalAmount.ToString());
             PdfDocumentRenderer renderer = new PdfDocumentRenderer(true)
             {
@@ -76,8 +78,14 @@ namespace TestInvoiceModule
             invoice.LastSection.AddParagraph(client.phone);
         }
 
-        private static void AddOrderInfo(Document invoice)
+        private static void AddOrderInfo(Document invoice, string orderId, string orderDate, string dueDate)
         {
+            invoice.LastSection.AddParagraph("INVOICE NUMBER", "SectionHeader");
+            invoice.LastSection.AddParagraph(orderId);
+            invoice.LastSection.AddParagraph("DATE OF ISSUE", "SectionHeader");
+            invoice.LastSection.AddParagraph(orderDate);
+            invoice.LastSection.AddParagraph("TERMS", "SectionHeader");
+            invoice.LastSection.AddParagraph("E.g. please pay invoice by " + dueDate);
 
         }
 
