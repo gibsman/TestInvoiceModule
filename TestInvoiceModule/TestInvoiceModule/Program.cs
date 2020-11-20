@@ -16,8 +16,14 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            OrderProcessor orderProcessor = new OrderProcessor(100);
-            Console.WriteLine("Random test order batch generated (Batch length = " + 100 + ")");
+            Console.Write("Enter number of random orders to generate:");
+            int orderCount;
+            while (!int.TryParse(Console.ReadLine(), out orderCount))
+            {
+                Console.Write("Incorrect input! Please enter a valid number:");
+            }
+            OrderProcessor orderProcessor = new OrderProcessor(orderCount);
+            Console.WriteLine("Random order batch generated");
 
             double pdfGenerationTime = orderProcessor.GenerateInvoices();
             Console.WriteLine("Invoices generated!");
