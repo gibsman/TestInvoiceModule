@@ -35,7 +35,7 @@ namespace TestInvoiceModule
             double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
             watch.Reset();
             watch.Start();
-            SendMailBatch(orders);
+            //SendMailBatch(orders);
             watch.Stop();
             double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
             Console.WriteLine("Order batch processed!");
