@@ -16,29 +16,13 @@ namespace TestInvoiceModule
     {
         static void Main(string[] args)
         {
-            TestData testData = new TestData();
-            //this used to speed up future pdf generation
-            InvoiceGenerator.Generate(testData.GenerateRandomTestOrders(1)[0]);
-            ProcessOrders();
-        }
+            OrderProcessor orderProcessor = new OrderProcessor(100);
+            Console.WriteLine("Random test order batch generated (Batch length = " + 100 + ")");
 
-        private static void ProcessOrders()
-        {
-            TestData testData = new TestData();
-            int orderCount = 100;
-            List<Order> orders = testData.GenerateRandomTestOrders(orderCount);
-            Console.WriteLine("Random test order batch generated (Batch length = " + orders.Count + ")");
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            //generates all PDF invoices concurrently
-            Parallel.ForEach(orders, order => InvoiceGenerator.Generate(order));
-            watch.Stop();
-            double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
-            watch.Reset();
-            watch.Start();
-            MailManager.SendMailBatch(orders);
-            watch.Stop();
-            double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
-            Console.WriteLine("Order batch processed!");
+            double pdfGenerationTime = orderProcessor.GenerateInvoices();
+            Console.WriteLine("Invoices generated!");
+            double mailSentTime = orderProcessor.SendInvoices();
+            Console.WriteLine("Invoices sent!");
             Console.WriteLine("Time spent on PDF generation: " + pdfGenerationTime + " sec");
             Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");
             Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
