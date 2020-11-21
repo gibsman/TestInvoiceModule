@@ -10,7 +10,12 @@ namespace TestInvoiceModule
     {
         List<Order> generatedOrders;
 
-        public OrderProcessor(int orderCount)
+        public OrderProcessor()
+        {
+
+        }
+
+        public void GenerateOrders(int orderCount)
         {
             TestData data = new TestData();
             generatedOrders = data.GenerateRandomTestOrders(orderCount);

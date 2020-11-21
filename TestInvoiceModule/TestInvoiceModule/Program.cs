@@ -22,7 +22,8 @@ namespace TestInvoiceModule
             {
                 Console.Write("Incorrect input! Please enter a valid number:");
             }
-            OrderProcessor orderProcessor = new OrderProcessor(orderCount);
+            OrderProcessor orderProcessor = new OrderProcessor();
+            orderProcessor.GenerateOrders(orderCount);
             Console.WriteLine("Random order batch generated");
 
             double pdfGenerationTime = orderProcessor.GenerateInvoices();
