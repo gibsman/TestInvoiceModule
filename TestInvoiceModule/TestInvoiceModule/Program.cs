@@ -1,10 +1,13 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.ObjectModel;
 
 namespace TestInvoiceModule
 {
     class Program
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         static void Main(string[] args)
         {
             Console.Write("Enter number of random orders to generate:");
@@ -20,10 +23,10 @@ namespace TestInvoiceModule
             }
             catch (ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Error! There was a problem generating random orders. " + e.Message);
+                logger.Info("Error! There was a problem generating random orders. " + e.Message);
                 return;
             }
-            Console.WriteLine("Random order batch generated");
+            logger.Info("Random order batch generated");
             double pdfGenerationTime = 0;
             try
             {
@@ -37,7 +40,7 @@ namespace TestInvoiceModule
                     return;
                 }
             }
-            Console.WriteLine("Invoices generated!");
+            logger.Info("Invoices generated!");
             double mailSentTime = 0;
             try
             {
@@ -51,12 +54,12 @@ namespace TestInvoiceModule
                     return;
                 }
             }
-            Console.WriteLine("Invoices sent!");
+            logger.Info("Invoices sent!");
             orderProcessor.RemoveTemporaryFiles();
-            Console.WriteLine("Generated invoice files successfully deleted");
-            Console.WriteLine("Time spent on PDF generation: " + pdfGenerationTime + " sec");
-            Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");
-            Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
+            logger.Info("Generated invoice files successfully deleted");
+            logger.Info("Time spent on PDF generation: " + pdfGenerationTime + " sec");
+            logger.Info("Time spent on mail sending: " + mailSentTime + " sec");
+            logger.Info("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
         }
 
         //returns true if all invoices failed to generate/send
@@ -65,7 +68,7 @@ namespace TestInvoiceModule
             ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
             foreach (Exception e in flattenedExceptions)
             {
-                Console.WriteLine(mainErrorMessage + e.Message);
+                logger.Info(mainErrorMessage + e.Message);
             }
             bool allInvoicesFailed = (flattenedExceptions.Count == orderCount);
             return allInvoicesFailed;
