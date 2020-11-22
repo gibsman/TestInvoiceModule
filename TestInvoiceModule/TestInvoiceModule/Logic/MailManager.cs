@@ -46,8 +46,15 @@ namespace TestInvoiceModule
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
-                await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
-                    ConfigurationManager.AppSettings["Password"]);
+                try
+                {
+                    await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
+                        ConfigurationManager.AppSettings["Password"]);
+                }
+                catch
+                {
+                    throw new AuthenticationException("Authenticaction error. Please check your username and password.");
+                }
                 var options = FormatOptions.Default.Clone();
                 await client.SendAsync(options, mailMessage);
                 await client.DisconnectAsync(true);
