@@ -41,13 +41,8 @@ namespace TestInvoiceModule
             }
             catch (AggregateException exceptions)
             {
-                ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
-                foreach (Exception e in flattenedExceptions)
-                {
-                    Console.WriteLine("Error! Invoice couldn't get generated. " + e.Message);
-                }
-                //all invoices failed to generate, so termination is needed
-                if (flattenedExceptions.Count == orderCount)
+                string errorMessage = "Error! Invoice couldn't get generated. ";
+                if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
                     return;
                 }
@@ -60,13 +55,8 @@ namespace TestInvoiceModule
             }
             catch (AggregateException exceptions)
             {
-                ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
-                foreach (Exception e in flattenedExceptions)
-                {
-                    Console.WriteLine("Error! Invoice couldn't get sent. " + e.Message);
-                }
-                //all invoices failed to send, so termination is needed
-                if (flattenedExceptions.Count == orderCount)
+                string errorMessage = "Error! Invoice couldn't get sent. ";
+                if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
                     return;
                 }
@@ -77,6 +67,16 @@ namespace TestInvoiceModule
             Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
         }
 
-        
+        //returns true if all invoices failed to generate/send
+        static bool HandleMultipleExceptions(AggregateException exceptions, string mainErrorMessage, int orderCount)
+        {
+            ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
+            foreach (Exception e in flattenedExceptions)
+            {
+                Console.WriteLine(mainErrorMessage + e.Message);
+            }
+            bool allInvoicesFailed = (flattenedExceptions.Count == orderCount);
+            return allInvoicesFailed;
+        }
     }
 }
