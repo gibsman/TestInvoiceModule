@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FreeSpire.Doc" Version="7.11.0" />
     <PackageReference Include="MailKit" Version="2.9.0" />
     <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="1.50.5147" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
