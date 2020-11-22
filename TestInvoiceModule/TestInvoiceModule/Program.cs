@@ -9,6 +9,7 @@ using Spire.Doc.Documents;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace TestInvoiceModule
 {
@@ -33,8 +34,24 @@ namespace TestInvoiceModule
                 return;
             }
             Console.WriteLine("Random order batch generated");
-
-            double pdfGenerationTime = orderProcessor.GenerateInvoices();
+            double pdfGenerationTime = 0;
+            try
+            {
+                pdfGenerationTime = orderProcessor.GenerateInvoices();
+            }
+            catch (AggregateException exceptions)
+            {
+                ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
+                foreach (Exception e in flattenedExceptions)
+                {
+                    Console.WriteLine("Error! Invoice couldn't get generated. " + e.Message);
+                }
+                //all invoices failed to generate, so termination is needed
+                if (flattenedExceptions.Count == orderCount)
+                {
+                    return;
+                }
+            }
             Console.WriteLine("Invoices generated!");
             double mailSentTime = orderProcessor.SendInvoices();
             Console.WriteLine("Invoices sent!");

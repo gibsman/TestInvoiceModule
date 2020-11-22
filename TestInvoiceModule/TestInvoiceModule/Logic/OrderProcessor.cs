@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -25,8 +26,25 @@ namespace TestInvoiceModule
         public double GenerateInvoices()
         {
             var watch = Stopwatch.StartNew();
+            var exceptions = new ConcurrentQueue<Exception>();
+
             //generates all PDF invoices concurrently
-            Parallel.ForEach(generatedOrders, order => InvoiceGenerator.Generate(order));
+            Parallel.ForEach(generatedOrders, order =>
+            {
+                try
+                {
+                    InvoiceGenerator.Generate(order);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Enqueue(e);
+                }
+            });
+            if (exceptions.Count > 0)
+            {
+                throw new AggregateException(exceptions);
+            }
+            //this is unreachable if exceptions are thrown
             watch.Stop();
             double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
             return pdfGenerationTime;
