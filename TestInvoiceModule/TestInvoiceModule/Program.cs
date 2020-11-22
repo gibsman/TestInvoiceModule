@@ -28,9 +28,9 @@ namespace TestInvoiceModule
             {
                 orderProcessor.GenerateOrders(orderCount);
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Critical error! Order list count is less than zero.");
+                Console.WriteLine("Error! There was a problem generating random orders. " + e.Message);
                 return;
             }
             Console.WriteLine("Random order batch generated");
@@ -76,5 +76,7 @@ namespace TestInvoiceModule
             Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");
             Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
         }
+
+        
     }
 }
