@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,9 +34,10 @@ namespace TestInvoiceModule
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
             mailMessage.To.Add(new MailboxAddress(clientName, recipientMail));
             mailMessage.Subject = "Invoice For Order №" + orderNum;
-            var attachment = new MimePart("application", "pdf")
+            var pdfStream = File.OpenRead(filename);
+            var attachment = new MimePart(MimeTypes.GetMimeType(filename))
             {
-                Content = new MimeContent(File.OpenRead(filename), ContentEncoding.Default),
+                Content = new MimeContent(pdfStream, ContentEncoding.Default),
                 ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
                 ContentTransferEncoding = ContentEncoding.Base64,
                 FileName = Path.GetFileName(filename)
@@ -59,6 +61,7 @@ namespace TestInvoiceModule
                 await client.SendAsync(options, mailMessage);
                 await client.DisconnectAsync(true);
             }
+            await pdfStream.DisposeAsync();
         }
     }
 }

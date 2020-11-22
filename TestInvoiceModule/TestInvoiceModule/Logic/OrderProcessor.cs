@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -60,6 +61,14 @@ namespace TestInvoiceModule
             watch.Stop();
             double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
             return mailSentTime;
+        }
+
+        public void RemoveTemporaryFiles()
+        {
+            for (int i = 0; i < generatedOrders.Count; i++)
+            {
+                File.Delete(generatedOrders[i].id + ".pdf");
+            }
         }
     }
 }

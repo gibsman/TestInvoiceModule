@@ -62,6 +62,8 @@ namespace TestInvoiceModule
                 }
             }
             Console.WriteLine("Invoices sent!");
+            orderProcessor.RemoveTemporaryFiles();
+            Console.WriteLine("Generated invoice files successfully deleted");
             Console.WriteLine("Time spent on PDF generation: " + pdfGenerationTime + " sec");
             Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");
             Console.WriteLine("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
