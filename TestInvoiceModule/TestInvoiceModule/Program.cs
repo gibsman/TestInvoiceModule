@@ -53,7 +53,24 @@ namespace TestInvoiceModule
                 }
             }
             Console.WriteLine("Invoices generated!");
-            double mailSentTime = orderProcessor.SendInvoices();
+            double mailSentTime = 0;
+            try
+            {
+                mailSentTime = orderProcessor.SendInvoices();
+            }
+            catch (AggregateException exceptions)
+            {
+                ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
+                foreach (Exception e in flattenedExceptions)
+                {
+                    Console.WriteLine("Error! Invoice couldn't get sent. " + e.Message);
+                }
+                //all invoices failed to send, so termination is needed
+                if (flattenedExceptions.Count == orderCount)
+                {
+                    return;
+                }
+            }
             Console.WriteLine("Invoices sent!");
             Console.WriteLine("Time spent on PDF generation: " + pdfGenerationTime + " sec");
             Console.WriteLine("Time spent on mail sending: " + mailSentTime + " sec");

@@ -56,6 +56,7 @@ namespace TestInvoiceModule
             var watch = Stopwatch.StartNew();
             watch.Start();
             MailManager.SendMailBatch(generatedOrders);
+            //this is unreachable if exceptions are thrown
             watch.Stop();
             double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
             return mailSentTime;
