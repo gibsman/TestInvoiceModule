@@ -24,6 +24,10 @@ namespace TestInvoiceModule
 
         public List<Order> GenerateRandomTestOrders(int orderListCount)
         {
+            if (orderListCount < 0)
+            {
+                throw new ArgumentOutOfRangeException("orderListCount", "Order list count is less than zero");
+            }
             Random rand = new Random();
             List<Order> testOrders = new List<Order>();
             for (int i = 0; i < orderListCount; i++)

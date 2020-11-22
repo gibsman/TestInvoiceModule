@@ -24,31 +24,41 @@ namespace TestInvoiceModule
 
         private static async Task SendMail(string orderNum, string clientName, string recipientMail)
         {
+            string filename = orderNum + ".pdf";
+            if (!File.Exists(filename))
+            {
+                throw new FileNotFoundException("File " + filename + " does not exist.");
+            }
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
             mailMessage.To.Add(new MailboxAddress(clientName, recipientMail));
             mailMessage.Subject = "Invoice For Order №" + orderNum;
             var attachment = new MimePart("application", "pdf")
             {
-                Content = new MimeContent(File.OpenRead(orderNum + ".pdf"), ContentEncoding.Default),
+                Content = new MimeContent(File.OpenRead(filename), ContentEncoding.Default),
                 ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
                 ContentTransferEncoding = ContentEncoding.Base64,
-                FileName = Path.GetFileName(orderNum + ".pdf")
+                FileName = Path.GetFileName(filename)
             };
             var multipart = new Multipart("mixed");
             multipart.Add(attachment);
             mailMessage.Body = multipart;
-
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
-                await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
-                    ConfigurationManager.AppSettings["Password"]);
+                try
+                {
+                    await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
+                        ConfigurationManager.AppSettings["Password"]);
+                }
+                catch
+                {
+                    throw new AuthenticationException("Authenticaction error. Please check your username and password.");
+                }
                 var options = FormatOptions.Default.Clone();
                 await client.SendAsync(options, mailMessage);
                 await client.DisconnectAsync(true);
             }
         }
-
     }
 }

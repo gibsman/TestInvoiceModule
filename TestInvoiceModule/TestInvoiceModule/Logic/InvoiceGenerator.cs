@@ -7,6 +7,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace TestInvoiceModule
@@ -15,6 +16,15 @@ namespace TestInvoiceModule
     {
         public static void Generate(Order order)
         {
+            string filename = order.id + ".pdf";
+            if (File.Exists(filename))
+            {
+                FileInfo info = new FileInfo(filename);
+                if (info.IsReadOnly)
+                {
+                    throw new UnauthorizedAccessException("File " + filename + " already exists and is read only.");
+                }
+            }
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Document invoice = new Document();
             invoice.Info.Title = "Invoice №" + order.id;
@@ -31,8 +41,8 @@ namespace TestInvoiceModule
             {
                 Document = invoice
             };
-            DrawRectangles(renderer);
-            string filename = order.id + ".pdf";
+            renderer.RenderDocument();
+            DrawRectangles(renderer.PdfDocument);
             renderer.PdfDocument.Save(filename);
         }
         private static void DefineStyles(Document invoice)
@@ -186,10 +196,8 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(termFrame);
         }
 
-        private static void DrawRectangles(PdfDocumentRenderer renderer)
+        private static void DrawRectangles(PdfDocument document)
         {
-            renderer.RenderDocument();
-            PdfDocument document = renderer.PdfDocument;
             int recHeight = 35;
             int margin = 10;
             for (int i = 0; i < document.PageCount; i++)
