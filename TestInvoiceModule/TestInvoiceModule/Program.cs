@@ -1,14 +1,4 @@
 ﻿using System;
-using System.Configuration;
-using MimeKit;
-using System.IO;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using Spire.Doc;
-using Spire.Doc.Documents;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
 namespace TestInvoiceModule
