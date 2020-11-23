@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +10,8 @@ namespace TestInvoiceModule
 {
     public class OrderProcessor
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         List<Order> generatedOrders;
 
         public OrderProcessor()
@@ -67,6 +70,7 @@ namespace TestInvoiceModule
             for (int i = 0; i < generatedOrders.Count; i++)
             {
                 File.Delete(generatedOrders[i].id + ".pdf");
+                logger.Debug("Invoice № {0} file deleted", generatedOrders[i].id);
             }
         }
     }
