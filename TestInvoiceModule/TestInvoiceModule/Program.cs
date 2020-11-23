@@ -23,7 +23,7 @@ namespace TestInvoiceModule
             }
             catch (ArgumentOutOfRangeException e)
             {
-                logger.Info("Error! There was a problem generating random orders. {0}", e.Message);
+                logger.Error(e, "Error! There was a problem generating random orders. {0}", e.Message);
                 return;
             }
             logger.Info("Random order batch generated");
@@ -37,6 +37,7 @@ namespace TestInvoiceModule
                 string errorMessage = "Error! Invoice couldn't get generated. ";
                 if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
+                    logger.Fatal("All invoices failed to generate.");
                     return;
                 }
             }
@@ -51,6 +52,7 @@ namespace TestInvoiceModule
                 string errorMessage = "Error! Invoice couldn't get sent. ";
                 if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
+                    logger.Fatal("All invoices failed to send.");
                     return;
                 }
             }
@@ -68,7 +70,7 @@ namespace TestInvoiceModule
             ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;
             foreach (Exception e in flattenedExceptions)
             {
-                logger.Info(mainErrorMessage + e.Message);
+                logger.Error(exceptions, mainErrorMessage + e.Message);
             }
             bool allInvoicesFailed = (flattenedExceptions.Count == orderCount);
             return allInvoicesFailed;
