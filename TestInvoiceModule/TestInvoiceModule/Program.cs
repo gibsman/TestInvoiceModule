@@ -10,12 +10,16 @@ namespace TestInvoiceModule
 
         static void Main(string[] args)
         {
+            logger.Debug("Program initialized");
+            logger.Debug("Waiting for user input for order count");
             Console.Write("Enter number of random orders to generate:");
             int orderCount;
             while (!int.TryParse(Console.ReadLine(), out orderCount))
             {
                 Console.Write("Incorrect input! Please enter a valid number:");
+                logger.Debug("Input string is non numerical. Waiting for another input");
             }
+            logger.Debug("Number {0} is accepted as order count", orderCount);
             OrderProcessor orderProcessor = new OrderProcessor();
             try
             {
@@ -37,7 +41,7 @@ namespace TestInvoiceModule
                 string errorMessage = "Error! Invoice couldn't get generated. ";
                 if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
-                    logger.Fatal("All invoices failed to generate.");
+                    logger.Fatal("All invoices failed to generate. Program shutdown.");
                     return;
                 }
             }
@@ -52,7 +56,7 @@ namespace TestInvoiceModule
                 string errorMessage = "Error! Invoice couldn't get sent. ";
                 if (HandleMultipleExceptions(exceptions, errorMessage, orderCount))
                 {
-                    logger.Fatal("All invoices failed to send.");
+                    logger.Fatal("All invoices failed to send. Program shutdown.");
                     return;
                 }
             }
@@ -62,6 +66,7 @@ namespace TestInvoiceModule
             logger.Info("Time spent on PDF generation: {0} sec", pdfGenerationTime);
             logger.Info("Time spent on mail sending: {0} sec", mailSentTime);
             logger.Info("Total time elapsed: {0} sec", pdfGenerationTime + mailSentTime);
+            logger.Debug("Program shutdown");
         }
 
         //returns true if all invoices failed to generate/send
