@@ -21,6 +21,7 @@ namespace TestInvoiceModule
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
             OrderProcessor orderProcessor = new OrderProcessor();
+            logger.Info("Generating random orders...");
             try
             {
                 orderProcessor.GenerateOrders(orderCount);
@@ -30,7 +31,8 @@ namespace TestInvoiceModule
                 logger.Error(e, "Error! There was a problem generating random orders. {0}", e.Message);
                 return;
             }
-            logger.Info("Random order batch generated");
+            logger.Info("Order batch generated!");
+            logger.Info("Generating invoices...");
             double pdfGenerationTime = 0;
             try
             {
@@ -46,6 +48,7 @@ namespace TestInvoiceModule
                 }
             }
             logger.Info("Invoices generated!");
+            logger.Info("Sending invoices...");
             double mailSentTime = 0;
             try
             {
@@ -61,8 +64,9 @@ namespace TestInvoiceModule
                 }
             }
             logger.Info("Invoices sent!");
+            logger.Info("Deleting generated invoices...");
             orderProcessor.RemoveTemporaryFiles();
-            logger.Info("Generated invoice files successfully deleted");
+            logger.Info("All generated invoice files deleted!");
             logger.Info("Time spent on PDF generation: {0} sec", pdfGenerationTime);
             logger.Info("Time spent on mail sending: {0} sec", mailSentTime);
             logger.Info("Total time elapsed: {0} sec", pdfGenerationTime + mailSentTime);
