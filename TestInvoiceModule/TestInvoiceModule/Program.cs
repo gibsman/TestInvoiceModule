@@ -23,7 +23,7 @@ namespace TestInvoiceModule
             }
             catch (ArgumentOutOfRangeException e)
             {
-                logger.Info("Error! There was a problem generating random orders. " + e.Message);
+                logger.Info("Error! There was a problem generating random orders. {0}", e.Message);
                 return;
             }
             logger.Info("Random order batch generated");
@@ -57,9 +57,9 @@ namespace TestInvoiceModule
             logger.Info("Invoices sent!");
             orderProcessor.RemoveTemporaryFiles();
             logger.Info("Generated invoice files successfully deleted");
-            logger.Info("Time spent on PDF generation: " + pdfGenerationTime + " sec");
-            logger.Info("Time spent on mail sending: " + mailSentTime + " sec");
-            logger.Info("Total time elapsed: " + (pdfGenerationTime + mailSentTime) + " sec");
+            logger.Info("Time spent on PDF generation: {0} sec", pdfGenerationTime);
+            logger.Info("Time spent on mail sending: {0} sec", mailSentTime);
+            logger.Info("Total time elapsed: {0} sec", pdfGenerationTime + mailSentTime);
         }
 
         //returns true if all invoices failed to generate/send
