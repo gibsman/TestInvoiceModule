@@ -2,6 +2,7 @@
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
+using NLog;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using System;
@@ -13,6 +14,7 @@ namespace TestInvoiceModule
 {
     public static class InvoiceGenerator
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public static void Generate(Order order)
         {
             string filename = order.id + ".pdf";
@@ -26,7 +28,7 @@ namespace TestInvoiceModule
             }
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Document invoice = new Document();
-            invoice.Info.Title = "Invoice №" + order.id;
+            invoice.Info.Title = "Invoice № " + order.id;
             invoice.Info.Subject = "Invoice for several items purchased from Placeholder Company";
             invoice.Info.Author = "Placeholder Company";
             DefineStyles(invoice);
@@ -43,6 +45,7 @@ namespace TestInvoiceModule
             renderer.RenderDocument();
             DrawRectangles(renderer.PdfDocument);
             renderer.PdfDocument.Save(filename);
+            logger.Debug("Invoice № {0} file saved", order.id);
         }
         private static void DefineStyles(Document invoice)
         {
