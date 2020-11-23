@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using NLog;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -10,6 +11,8 @@ namespace TestInvoiceModule
 {
     public static class MailManager
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public static void SendMailBatch(List<Order> orders)
         {
             Task[] mailTasks = new Task[orders.Count];
@@ -59,6 +62,7 @@ namespace TestInvoiceModule
                 await client.DisconnectAsync(true);
             }
             await pdfStream.DisposeAsync();
+            logger.Debug("Invoice № {0} sent", orderNum);
         }
     }
 }
