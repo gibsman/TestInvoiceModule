@@ -1,10 +1,13 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 
 namespace TestInvoiceModule
 {
     public class TestData
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private int orderId;
         private List<Client> testClients;
         private List<Product> testProducts;
@@ -42,6 +45,7 @@ namespace TestInvoiceModule
                 }
                 Client randomClient = testClients[rand.Next(testClients.Count)];
                 testOrders.Add(new Order(orderId, randomClient, DateTime.Now, orderProducts));
+                logger.Debug("Random order № {0} generated", orderId);
                 orderId++;
             }
             return testOrders;
