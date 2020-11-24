@@ -11,12 +11,15 @@ namespace TestInvoiceModule
     public class OrderProcessor
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly IInvoiceGenerator invoiceGenerator;
+        private readonly IMailManager mailManager;
 
         List<Order> generatedOrders;
 
-        public OrderProcessor()
+        public OrderProcessor(IInvoiceGenerator invoiceGenerator, IMailManager mailManager)
         {
-
+            this.invoiceGenerator = invoiceGenerator;
+            this.mailManager = mailManager;
         }
 
         public void GenerateOrders(int orderCount)
@@ -36,7 +39,6 @@ namespace TestInvoiceModule
             {
                 try
                 {
-                    IInvoiceGenerator invoiceGenerator = new InvoiceGenerator();
                     invoiceGenerator.Generate(order);
                 }
                 catch (Exception e)
@@ -59,8 +61,7 @@ namespace TestInvoiceModule
         {
             var watch = Stopwatch.StartNew();
             watch.Start();
-            IMailManager manager = new MailManager();
-            manager.SendMailBatch(generatedOrders);
+            mailManager.SendMailBatch(generatedOrders);
             //this is unreachable if exceptions are thrown
             watch.Stop();
             double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
