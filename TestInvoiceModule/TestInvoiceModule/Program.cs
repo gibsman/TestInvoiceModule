@@ -36,10 +36,9 @@ namespace TestInvoiceModule
             }
             logger.Info("Order batch generated!");
             logger.Info("Generating invoices...");
-            double pdfGenerationTime = 0;
             try
             {
-                pdfGenerationTime = orderProcessor.GenerateInvoices();
+                orderProcessor.GenerateInvoices();
             }
             catch (AggregateException exceptions)
             {
@@ -52,10 +51,9 @@ namespace TestInvoiceModule
             }
             logger.Info("Invoices generated!");
             logger.Info("Sending invoices...");
-            double mailSentTime = 0;
             try
             {
-                mailSentTime = orderProcessor.SendInvoices();
+                orderProcessor.SendInvoices();
             }
             catch (AggregateException exceptions)
             {
@@ -70,9 +68,6 @@ namespace TestInvoiceModule
             logger.Info("Deleting generated invoices...");
             orderProcessor.RemoveTemporaryFiles();
             logger.Info("All generated invoice files deleted!");
-            logger.Info("Time spent on PDF generation: {0} sec", pdfGenerationTime);
-            logger.Info("Time spent on mail sending: {0} sec", mailSentTime);
-            logger.Info("Total time elapsed: {0} sec", pdfGenerationTime + mailSentTime);
             logger.Debug("Program shutdown");
         }
 

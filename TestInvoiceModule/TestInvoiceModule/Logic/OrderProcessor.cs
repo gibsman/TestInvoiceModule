@@ -30,12 +30,9 @@ namespace TestInvoiceModule
             generatedOrders = testData.GenerateRandomTestOrders(orderCount);
         }
 
-        //returns time spent on generating invoices (in seconds)
-        public double GenerateInvoices()
+        public void GenerateInvoices()
         {
-            var watch = Stopwatch.StartNew();
             var exceptions = new ConcurrentQueue<Exception>();
-
             //generates all PDF invoices concurrently
             Parallel.ForEach(generatedOrders, order =>
             {
@@ -52,22 +49,11 @@ namespace TestInvoiceModule
             {
                 throw new AggregateException(exceptions);
             }
-            //this is unreachable if exceptions are thrown
-            watch.Stop();
-            double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
-            return pdfGenerationTime;
         }
 
-        //returns time spent on sending invoices (in seconds)
-        public double SendInvoices()
+        public void SendInvoices()
         {
-            var watch = Stopwatch.StartNew();
-            watch.Start();
             mailManager.SendMailBatch(generatedOrders);
-            //this is unreachable if exceptions are thrown
-            watch.Stop();
-            double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
-            return mailSentTime;
         }
 
         public void RemoveTemporaryFiles()
