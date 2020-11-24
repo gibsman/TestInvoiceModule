@@ -20,9 +20,10 @@ namespace TestInvoiceModule
                 logger.Debug("Input string is non numerical. Waiting for another input");
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
+            ITestData testData = new TestData();
             IInvoiceGenerator invoiceGenerator = new InvoiceGenerator();
             IMailManager mailManager = new MailManager();
-            OrderProcessor orderProcessor = new OrderProcessor(invoiceGenerator, mailManager);
+            OrderProcessor orderProcessor = new OrderProcessor(testData, invoiceGenerator, mailManager);
             logger.Info("Generating random orders...");
             try
             {

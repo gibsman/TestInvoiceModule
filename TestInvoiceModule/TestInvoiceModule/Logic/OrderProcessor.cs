@@ -11,21 +11,23 @@ namespace TestInvoiceModule
     public class OrderProcessor
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly ITestData testData;
         private readonly IInvoiceGenerator invoiceGenerator;
         private readonly IMailManager mailManager;
 
         List<Order> generatedOrders;
 
-        public OrderProcessor(IInvoiceGenerator invoiceGenerator, IMailManager mailManager)
+        public OrderProcessor(ITestData testData, IInvoiceGenerator invoiceGenerator, 
+            IMailManager mailManager)
         {
+            this.testData = testData;
             this.invoiceGenerator = invoiceGenerator;
             this.mailManager = mailManager;
         }
 
         public void GenerateOrders(int orderCount)
         {
-            TestData data = new TestData();
-            generatedOrders = data.GenerateRandomTestOrders(orderCount);
+            generatedOrders = testData.GenerateRandomTestOrders(orderCount);
         }
 
         //returns time spent on generating invoices (in seconds)

@@ -4,7 +4,14 @@ using System.Collections.Generic;
 
 namespace TestInvoiceModule
 {
-    public class TestData
+    public interface ITestData
+    {
+        List<Order> GenerateRandomTestOrders();
+
+        List<Order> GenerateRandomTestOrders(int orderListCount);
+    }
+
+    public class TestData : ITestData
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
