@@ -1,6 +1,8 @@
-﻿using NLog;
+﻿using Ninject;
+using NLog;
 using System;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace TestInvoiceModule
 {
@@ -20,10 +22,12 @@ namespace TestInvoiceModule
                 logger.Debug("Input string is non numerical. Waiting for another input");
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
-            ITestData testData = new TestData();
-            IInvoiceGenerator invoiceGenerator = new InvoiceGenerator();
-            IMailManager mailManager = new MailManager();
-            IOrderProcessor orderProcessor = new OrderProcessor(testData, invoiceGenerator, mailManager);
+            IKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+
+            //gets OrderProcessor object with all dependencies resolved
+            //which is accomplished through type bindings in Bindings class
+            var orderProcessor = kernel.Get<IOrderProcessor>();
             logger.Info("Generating random orders...");
             try
             {
