@@ -8,7 +8,18 @@ using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
-    public class OrderProcessor
+    public interface IOrderProcessor
+    {
+        void GenerateOrders(int orderCount);
+
+        void GenerateInvoices();
+
+        void SendInvoices();
+
+        void RemoveTemporaryFiles();
+    }
+
+    public class OrderProcessor : IOrderProcessor
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly ITestData testData;

@@ -23,7 +23,7 @@ namespace TestInvoiceModule
             ITestData testData = new TestData();
             IInvoiceGenerator invoiceGenerator = new InvoiceGenerator();
             IMailManager mailManager = new MailManager();
-            OrderProcessor orderProcessor = new OrderProcessor(testData, invoiceGenerator, mailManager);
+            IOrderProcessor orderProcessor = new OrderProcessor(testData, invoiceGenerator, mailManager);
             logger.Info("Generating random orders...");
             try
             {
