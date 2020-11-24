@@ -8,35 +8,48 @@ using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
-    public class OrderProcessor
+    public interface IOrderProcessor
+    {
+        void GenerateOrders(int orderCount);
+
+        void GenerateInvoices();
+
+        void SendInvoices();
+
+        void RemoveTemporaryFiles();
+    }
+
+    public class OrderProcessor : IOrderProcessor
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly ITestData testData;
+        private readonly IInvoiceGenerator invoiceGenerator;
+        private readonly IMailManager mailManager;
 
         List<Order> generatedOrders;
 
-        public OrderProcessor()
+        public OrderProcessor(ITestData testData, IInvoiceGenerator invoiceGenerator, 
+            IMailManager mailManager)
         {
-
+            this.testData = testData;
+            this.invoiceGenerator = invoiceGenerator;
+            this.mailManager = mailManager;
         }
 
         public void GenerateOrders(int orderCount)
         {
-            TestData data = new TestData();
-            generatedOrders = data.GenerateRandomTestOrders(orderCount);
+            generatedOrders = testData.GenerateRandomTestOrders(orderCount);
         }
 
-        //returns time spent on generating invoices (in seconds)
-        public double GenerateInvoices()
+        public void GenerateInvoices()
         {
-            var watch = Stopwatch.StartNew();
             var exceptions = new ConcurrentQueue<Exception>();
-
             //generates all PDF invoices concurrently
             Parallel.ForEach(generatedOrders, order =>
             {
                 try
                 {
-                    InvoiceGenerator.Generate(order);
+                    invoiceGenerator.Generate(order);
                 }
                 catch (Exception e)
                 {
@@ -47,22 +60,11 @@ namespace TestInvoiceModule
             {
                 throw new AggregateException(exceptions);
             }
-            //this is unreachable if exceptions are thrown
-            watch.Stop();
-            double pdfGenerationTime = (double)watch.ElapsedMilliseconds / 1000;
-            return pdfGenerationTime;
         }
 
-        //returns time spent on sending invoices (in seconds)
-        public double SendInvoices()
+        public void SendInvoices()
         {
-            var watch = Stopwatch.StartNew();
-            watch.Start();
-            MailManager.SendMailBatch(generatedOrders);
-            //this is unreachable if exceptions are thrown
-            watch.Stop();
-            double mailSentTime = (double)watch.ElapsedMilliseconds / 1000;
-            return mailSentTime;
+            mailManager.SendMailBatch(generatedOrders);
         }
 
         public void RemoveTemporaryFiles()

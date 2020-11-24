@@ -1,6 +1,8 @@
-﻿using NLog;
+﻿using Ninject;
+using NLog;
 using System;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace TestInvoiceModule
 {
@@ -20,7 +22,12 @@ namespace TestInvoiceModule
                 logger.Debug("Input string is non numerical. Waiting for another input");
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
-            OrderProcessor orderProcessor = new OrderProcessor();
+            IKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+
+            //gets OrderProcessor object with all dependencies resolved
+            //which is accomplished through type bindings in Bindings class
+            var orderProcessor = kernel.Get<IOrderProcessor>();
             logger.Info("Generating random orders...");
             try
             {
@@ -33,10 +40,9 @@ namespace TestInvoiceModule
             }
             logger.Info("Order batch generated!");
             logger.Info("Generating invoices...");
-            double pdfGenerationTime = 0;
             try
             {
-                pdfGenerationTime = orderProcessor.GenerateInvoices();
+                orderProcessor.GenerateInvoices();
             }
             catch (AggregateException exceptions)
             {
@@ -49,10 +55,9 @@ namespace TestInvoiceModule
             }
             logger.Info("Invoices generated!");
             logger.Info("Sending invoices...");
-            double mailSentTime = 0;
             try
             {
-                mailSentTime = orderProcessor.SendInvoices();
+                orderProcessor.SendInvoices();
             }
             catch (AggregateException exceptions)
             {
@@ -67,9 +72,6 @@ namespace TestInvoiceModule
             logger.Info("Deleting generated invoices...");
             orderProcessor.RemoveTemporaryFiles();
             logger.Info("All generated invoice files deleted!");
-            logger.Info("Time spent on PDF generation: {0} sec", pdfGenerationTime);
-            logger.Info("Time spent on mail sending: {0} sec", mailSentTime);
-            logger.Info("Total time elapsed: {0} sec", pdfGenerationTime + mailSentTime);
             logger.Debug("Program shutdown");
         }
 
