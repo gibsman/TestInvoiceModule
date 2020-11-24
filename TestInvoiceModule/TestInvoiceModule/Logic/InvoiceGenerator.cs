@@ -12,10 +12,16 @@ using System.Text;
 
 namespace TestInvoiceModule
 {
-    public static class InvoiceGenerator
+    public class InvoiceGenerator
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        public static void Generate(Order order)
+        private readonly Logger logger = LogManager.GetCurrentClassLogger();
+
+        public InvoiceGenerator()
+        {
+
+        }
+
+        public void Generate(Order order)
         {
             string filename = order.id + ".pdf";
             if (File.Exists(filename))
@@ -47,7 +53,7 @@ namespace TestInvoiceModule
             renderer.PdfDocument.Save(filename);
             logger.Debug("Invoice № {0} file saved", order.id);
         }
-        private static void DefineStyles(Document invoice)
+        private void DefineStyles(Document invoice)
         {
             //"Normal" defines default style
             Style style = invoice.Styles["Normal"];
@@ -73,8 +79,7 @@ namespace TestInvoiceModule
             style.ParagraphFormat.SpaceAfter = 20;
         }
 
-
-        private static void AddCompanyInfo(Document invoice)
+        private void AddCompanyInfo(Document invoice)
         {
             invoice.AddSection();
             invoice.LastSection.AddParagraph("INVOICE", "MainHeader");
@@ -97,7 +102,7 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(table);
         }
 
-        private static void AddClientInfo(Document invoice, Client client)
+        private void AddClientInfo(Document invoice, Client client)
         {
             invoice.LastSection.AddParagraph("BILLED TO", "SectionHeader");
             invoice.LastSection.AddParagraph(client.name);
@@ -106,7 +111,7 @@ namespace TestInvoiceModule
             invoice.LastSection.AddParagraph(client.phone, "ClientPadding");
         }
 
-        private static void PlaceOrderInfoAndProductsTableOnSameLine(Document invoice, TextFrame orderInfoFrame,
+        private void PlaceOrderInfoAndProductsTableOnSameLine(Document invoice, TextFrame orderInfoFrame,
             TextFrame tableFrame, string totalAmount)
         {
             Table table = new Table();
@@ -129,7 +134,7 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(totalNumPar);
         }
 
-        private static TextFrame AddOrderInfo(string orderId, string orderDate)
+        private TextFrame AddOrderInfo(string orderId, string orderDate)
         {
             TextFrame orderInfoFrame = new TextFrame();
             Paragraph invoiceNumPar = new Paragraph();
@@ -146,8 +151,7 @@ namespace TestInvoiceModule
             return orderInfoFrame;
         }
 
-
-        private static TextFrame AddProductsTable(List<OrderProduct> orderProducts)
+        private TextFrame AddProductsTable(List<OrderProduct> orderProducts)
         {
             Table table = new Table();
             table.Format.Font.Size = 10;
@@ -184,7 +188,7 @@ namespace TestInvoiceModule
             return tableFrame;
         }
 
-        private static void AddTerms(Document invoice, string dueDate)
+        private void AddTerms(Document invoice, string dueDate)
         {
             TextFrame termFrame = new TextFrame();
             Paragraph termParagraph = new Paragraph();

@@ -9,11 +9,16 @@ using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
-    public static class MailManager
+    public class MailManager
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public static void SendMailBatch(List<Order> orders)
+        public MailManager()
+        {
+
+        }
+
+        public void SendMailBatch(List<Order> orders)
         {
             Task[] mailTasks = new Task[orders.Count];
             for (int i = 0; i < orders.Count; i++)
@@ -23,7 +28,7 @@ namespace TestInvoiceModule
             Task.WaitAll(mailTasks);
         }
 
-        private static async Task SendMail(string orderNum, string clientName, string recipientMail)
+        private async Task SendMail(string orderNum, string clientName, string recipientMail)
         {
             string filename = orderNum + ".pdf";
             if (!File.Exists(filename))
