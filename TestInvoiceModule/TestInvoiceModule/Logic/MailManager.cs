@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
-    public class MailManager
+    public interface IMailManager
+    {
+        void SendMailBatch(List<Order> orders);
+    }
+
+    public class MailManager : IMailManager
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 

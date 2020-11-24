@@ -36,7 +36,7 @@ namespace TestInvoiceModule
             {
                 try
                 {
-                    InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
+                    IInvoiceGenerator invoiceGenerator = new InvoiceGenerator();
                     invoiceGenerator.Generate(order);
                 }
                 catch (Exception e)
@@ -59,7 +59,7 @@ namespace TestInvoiceModule
         {
             var watch = Stopwatch.StartNew();
             watch.Start();
-            MailManager manager = new MailManager();
+            IMailManager manager = new MailManager();
             manager.SendMailBatch(generatedOrders);
             //this is unreachable if exceptions are thrown
             watch.Stop();

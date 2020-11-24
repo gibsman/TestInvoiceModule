@@ -12,7 +12,12 @@ using System.Text;
 
 namespace TestInvoiceModule
 {
-    public class InvoiceGenerator
+    public interface IInvoiceGenerator
+    {
+        void Generate(Order order);
+    }
+
+    public class InvoiceGenerator : IInvoiceGenerator
     {
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
