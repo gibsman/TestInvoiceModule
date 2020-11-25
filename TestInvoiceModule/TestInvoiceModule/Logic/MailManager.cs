@@ -2,6 +2,7 @@
 using MailKit.Security;
 using MimeKit;
 using NLog;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -68,7 +69,14 @@ namespace TestInvoiceModule
                     throw new AuthenticationException("Authenticaction error. Please check your username and password.");
                 }
                 var options = FormatOptions.Default.Clone();
-                await client.SendAsync(options, mailMessage);
+                try
+                {
+                    await client.SendAsync(options, mailMessage);
+                }
+                catch
+                {
+                    throw new Exception("SMTP client failed to send mail.");
+                }
                 await client.DisconnectAsync(true);
             }
             await pdfStream.DisposeAsync();
