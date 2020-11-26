@@ -10,6 +10,7 @@ namespace TestInvoiceModule
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>This is the entry point for test invoice module</summary>
         static void Main(string[] args)
         {
             logger.Debug("Program initialized");
@@ -75,7 +76,13 @@ namespace TestInvoiceModule
             logger.Debug("Program shutdown");
         }
 
-        //returns true if all invoices failed to generate/send
+        /// <summary> 
+        /// Outputs description for multiple exceptions that can appear while generating or sending invoices.
+        /// </summary>
+        /// <param name="exceptions">Multiple exceptions that occured during runtime.</param>
+        /// <param name="mainErrorMessage">Main message that preceeds occured exception's messages.</param>
+        /// <param name="orderCount">Number of generated orders.</param>
+        /// <returns>True if all invoices failed to generate/send, false otherwise.</returns>
         static bool HandleMultipleExceptions(AggregateException exceptions, string mainErrorMessage, int orderCount)
         {
             ReadOnlyCollection<Exception> flattenedExceptions = exceptions.Flatten().InnerExceptions;

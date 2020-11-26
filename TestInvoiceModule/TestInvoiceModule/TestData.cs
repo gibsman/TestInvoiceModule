@@ -4,34 +4,52 @@ using System.Collections.Generic;
 
 namespace TestInvoiceModule
 {
+    /// <summary>
+    /// Generates list of orders
+    /// </summary>
     public interface ITestData
     {
-        List<Order> GenerateRandomTestOrders();
+        List<Order> GenerateTestOrders();
 
-        List<Order> GenerateRandomTestOrders(int orderListCount);
+        List<Order> GenerateTestOrders(int orderListCount);
     }
 
-    public class TestData : ITestData
+    /// <summary>
+    /// Class <see cref="RandomTestData`1"/> generates list of random orders from predetermined collections of clients and products.
+    /// </summary>
+    public class RandomTestData : ITestData
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         private int orderId;
         private List<Client> testClients;
         private List<Product> testProducts;
-        
-        public TestData()
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomTestData`1"/> class.
+        /// </summary>
+        public RandomTestData()
         {
             InitializeClientAndProductTestData();
             orderId = 0;
         }
 
-        public List<Order> GenerateRandomTestOrders()
+        /// <summary>
+        /// Generates list of random orders which has random length (no more than 500).
+        /// </summary>
+        /// <returns>List of random orders.</returns>
+        public List<Order> GenerateTestOrders()
         {
             Random rand = new Random();
-            return GenerateRandomTestOrders(rand.Next());
+            return GenerateTestOrders(rand.Next(500));
         }
 
-        public List<Order> GenerateRandomTestOrders(int orderListCount)
+        /// <summary>
+        /// Generates list of random orders which has specific length.
+        /// </summary>
+        /// <param name="orderListCount">Number of orders to be generated.</param>
+        /// <returns>List of random orders.</returns>
+        public List<Order> GenerateTestOrders(int orderListCount)
         {
             if (orderListCount < 0)
             {
@@ -58,6 +76,11 @@ namespace TestInvoiceModule
             return testOrders;
         }
 
+        /// <summary>
+        /// Randomly shuffles list of products.
+        /// </summary>
+        /// <param name="products">List of products to be shuffled.</param>
+        /// <param name="rand">Random number generator.</param>
         private static void ShuffleProductList(List<Product> products, Random rand)
         {
             int n = products.Count;
@@ -71,6 +94,9 @@ namespace TestInvoiceModule
             }
         }
 
+        /// <summary>
+        /// Initializes predetermined lists of clients and products.
+        /// </summary>
         private void InitializeClientAndProductTestData()
         {
             testClients = new List<Client>()
