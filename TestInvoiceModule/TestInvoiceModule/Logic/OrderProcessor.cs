@@ -23,7 +23,7 @@ namespace TestInvoiceModule
     }
 
     /// <summary>
-    /// Class <see cref="OrderProcessor`1"/> manages all steps of invoice processing: order generation, invoice files generation,
+    /// Class <see cref="OrderProcessor`1"/> manages all steps of invoice processing: order generation as well as invoice files generation,
     /// sending and removal.
     /// </summary>
     public class OrderProcessor : IOrderProcessor
