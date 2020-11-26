@@ -15,7 +15,7 @@ namespace TestInvoiceModule
     }
 
     /// <summary>
-    /// Class <see cref="RandomTestData`1"/ generates list of random orders from predetermined collections of clients and products.
+    /// Class <see cref="RandomTestData`1"/> generates list of random orders from predetermined collections of clients and products.
     /// </summary>
     public class RandomTestData : ITestData
     {
@@ -95,7 +95,7 @@ namespace TestInvoiceModule
         }
 
         /// <summary>
-        /// Initializes predetermined lists of clients and products
+        /// Initializes predetermined lists of clients and products.
         /// </summary>
         private void InitializeClientAndProductTestData()
         {

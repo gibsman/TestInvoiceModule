@@ -10,20 +10,33 @@ using System.Threading.Tasks;
 
 namespace TestInvoiceModule
 {
+    /// <summary>
+    /// Sends generated invoice PDF files to clients
+    /// </summary>
     public interface IMailManager
     {
         void SendMailBatch(List<Order> orders);
     }
 
+    /// <summary>
+    /// Class <see cref="MailManager`1"/> sends generated invoice PDF files to one predetermined email address (for test purposes).
+    /// </summary>
     public class MailManager : IMailManager
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MailManager`1"/> class.
+        /// </summary>
         public MailManager()
         {
 
         }
 
+        /// <summary>
+        /// Sends all generated files to test email address asynchronously.
+        /// </summary>
+        /// <param name="orders">List of generated orders.</param>
         public void SendMailBatch(List<Order> orders)
         {
             Task[] mailTasks = new Task[orders.Count];
@@ -34,6 +47,13 @@ namespace TestInvoiceModule
             Task.WaitAll(mailTasks);
         }
 
+        /// <summary>
+        /// Sends one generated PDF file to test mail address using SMTP client.
+        /// </summary>
+        /// <param name="orderNum">Order identifier.</param>
+        /// <param name="clientName">Name of a client.</param>
+        /// <param name="recipientMail">Test email address.</param>
+        /// <returns></returns>
         private async Task SendMail(string orderNum, string clientName, string recipientMail)
         {
             string filename = orderNum + ".pdf";
