@@ -6,12 +6,11 @@ namespace TestInvoiceModule
 {
     public interface ITestData
     {
-        List<Order> GenerateRandomTestOrders();
+        List<Order> GenerateTestOrders();
 
-        List<Order> GenerateRandomTestOrders(int orderListCount);
+        List<Order> GenerateTestOrders(int orderListCount);
     }
-
-    public class TestData : ITestData
+    public class RandomTestData : ITestData
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -19,19 +18,19 @@ namespace TestInvoiceModule
         private List<Client> testClients;
         private List<Product> testProducts;
         
-        public TestData()
+        public RandomTestData()
         {
             InitializeClientAndProductTestData();
             orderId = 0;
         }
 
-        public List<Order> GenerateRandomTestOrders()
+        public List<Order> GenerateTestOrders()
         {
             Random rand = new Random();
-            return GenerateRandomTestOrders(rand.Next());
+            return GenerateTestOrders(rand.Next(500));
         }
 
-        public List<Order> GenerateRandomTestOrders(int orderListCount)
+        public List<Order> GenerateTestOrders(int orderListCount)
         {
             if (orderListCount < 0)
             {

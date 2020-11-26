@@ -38,7 +38,7 @@ namespace TestInvoiceModule
 
         public void GenerateOrders(int orderCount)
         {
-            generatedOrders = testData.GenerateRandomTestOrders(orderCount);
+            generatedOrders = testData.GenerateTestOrders(orderCount);
         }
 
         public void GenerateInvoices()

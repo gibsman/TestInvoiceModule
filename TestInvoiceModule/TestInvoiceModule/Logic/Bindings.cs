@@ -13,7 +13,7 @@ namespace TestInvoiceModule
             //it will try to resolve it with bound class object
             Bind<IInvoiceGenerator>().To<InvoiceGenerator>();
             Bind<IMailManager>().To<MailManager>();
-            Bind<ITestData>().To<TestData>();
+            Bind<ITestData>().To<RandomTestData>();
             Bind<IOrderProcessor>().To<OrderProcessor>();
         }
     }
