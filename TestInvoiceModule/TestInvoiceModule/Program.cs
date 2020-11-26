@@ -14,13 +14,24 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             logger.Debug("Program initialized");
-            logger.Debug("Waiting for user input for order count");
-            Console.Write("Enter number of random orders to generate:");
-            int orderCount;
-            while (!int.TryParse(Console.ReadLine(), out orderCount))
+            int orderCount = 0;
+            if (args.Length == 0)
             {
-                Console.Write("Incorrect input! Please enter a valid number:");
-                logger.Debug("Input string is non numerical. Waiting for another input");
+                Console.Write("No commands provided. Use command '--help' to get instructions on how to use this module.");
+                logger.Debug("No commands provided. Program shutdown.");
+                return;
+            }
+            else if (args[0].Equals("--help"))
+            {
+                Console.Write("insert help instructions here");
+                logger.Debug("Help information printed. Program shutdown.");
+                return;
+            }
+            else if (!int.TryParse(args[0], out orderCount))
+            {
+                Console.Write("Unknown command. Use --help in order to get information for usage.");
+                logger.Debug("Unknown command. Program shutdown.");
+                return;
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
             IKernel kernel = new StandardKernel();
@@ -29,7 +40,7 @@ namespace TestInvoiceModule
             //gets OrderProcessor object with all dependencies resolved
             //which is accomplished through type bindings in Bindings class
             var orderProcessor = kernel.Get<IOrderProcessor>();
-            logger.Info("Generating random orders...");
+            logger.Info("Generating {0} random orders...", orderCount);
             try
             {
                 orderProcessor.GenerateOrders(orderCount);
