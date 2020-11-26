@@ -12,20 +12,33 @@ using System.Text;
 
 namespace TestInvoiceModule
 {
+    /// <summary>
+    /// Generates invoice files
+    /// </summary>
     public interface IInvoiceGenerator
     {
         void Generate(Order order);
     }
 
+    /// <summary>
+    /// Class <see cref="InvoiceGenerator`1"/> generates invoice in form of PDF file using order data.
+    /// </summary>
     public class InvoiceGenerator : IInvoiceGenerator
     {
         private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvoiceGenerator`1"/> class.
+        /// </summary>
         public InvoiceGenerator()
         {
 
         }
 
+        /// <summary>
+        /// Generates one page PDF file (which is named <order-id>.pdf) from order.
+        /// </summary>
+        /// <param name="order">Order used for PDF generation.</param>
         public void Generate(Order order)
         {
             string filename = order.id + ".pdf";
@@ -58,6 +71,11 @@ namespace TestInvoiceModule
             renderer.PdfDocument.Save(filename);
             logger.Debug("Invoice № {0} file saved", order.id);
         }
+
+        /// <summary>
+        /// Defines different style templates for generated PDF file.
+        /// </summary>
+        /// <param name="invoice">A <see cref="MigraDoc`1"/> document.</param>
         private void DefineStyles(Document invoice)
         {
             //"Normal" defines default style
@@ -84,6 +102,10 @@ namespace TestInvoiceModule
             style.ParagraphFormat.SpaceAfter = 20;
         }
 
+        /// <summary>
+        /// Adds company information paragraphs to PDF file.
+        /// </summary>
+        /// <param name="invoice">A <see cref="MigraDoc`1"/> document.</param>
         private void AddCompanyInfo(Document invoice)
         {
             invoice.AddSection();
@@ -107,6 +129,11 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(table);
         }
 
+        /// <summary>
+        /// Adds client information text to PDF file.
+        /// </summary>
+        /// <param name="invoice">A <see cref="MigraDoc`1"/> document.</param>
+        /// <param name="client">A <see cref="Client`1"/> object with necessary information.</param>
         private void AddClientInfo(Document invoice, Client client)
         {
             invoice.LastSection.AddParagraph("BILLED TO", "SectionHeader");
@@ -116,6 +143,14 @@ namespace TestInvoiceModule
             invoice.LastSection.AddParagraph(client.phone, "ClientPadding");
         }
 
+        /// <summary>
+        /// Places <see cref="TextFrame`1"/> with order information and <see cref="TextFrame`1"/> with products table on the same line
+        /// by placing them inside table with two rows. Also places string with total order amount after the table.
+        /// </summary>
+        /// <param name="invoice">A <see cref="MigraDoc`1"/> document.</param>
+        /// <param name="orderInfoFrame">A <see cref="TextFrame`1"/> with order information.</param>
+        /// <param name="tableFrame">A <see cref="TextFrame`1"/> with products table.</param>
+        /// <param name="totalAmount">Total order amount.</param>
         private void PlaceOrderInfoAndProductsTableOnSameLine(Document invoice, TextFrame orderInfoFrame,
             TextFrame tableFrame, string totalAmount)
         {
@@ -139,6 +174,12 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(totalNumPar);
         }
 
+        /// <summary>
+        /// Gets <see cref="TextFrame`1"/> with order information in it.
+        /// </summary>
+        /// <param name="orderId">Order identifier.</param>
+        /// <param name="orderDate">Order issue date.</param>
+        /// <returns><see cref="TextFrame`1"/> with order information.</returns>
         private TextFrame AddOrderInfo(string orderId, string orderDate)
         {
             TextFrame orderInfoFrame = new TextFrame();
@@ -156,6 +197,11 @@ namespace TestInvoiceModule
             return orderInfoFrame;
         }
 
+        /// <summary>
+        /// Gets <see cref="TextFrame`1"/> with ordered products table in it.
+        /// </summary>
+        /// <param name="orderProducts">List of ordered products.</param>
+        /// <returns><see cref="TextFrame`1"/> with ordered products table.</returns>
         private TextFrame AddProductsTable(List<OrderProduct> orderProducts)
         {
             Table table = new Table();
@@ -193,6 +239,11 @@ namespace TestInvoiceModule
             return tableFrame;
         }
 
+        /// <summary>
+        /// Adds invoice terms to PDF file.
+        /// </summary>
+        /// <param name="invoice">A <see cref="MigraDoc`1"/> document.</param>
+        /// <param name="dueDate">Order due date.</param>
         private void AddTerms(Document invoice, string dueDate)
         {
             TextFrame termFrame = new TextFrame();
@@ -207,6 +258,10 @@ namespace TestInvoiceModule
             invoice.LastSection.Add(termFrame);
         }
 
+        /// <summary>
+        /// Adds blue stripes at the top and the bottom of PDF file.
+        /// </summary>
+        /// <param name="document">>A <see cref="PdfSharp`1"/> document.</param>
         private static void DrawRectangles(PdfDocument document)
         {
             int recHeight = 35;
