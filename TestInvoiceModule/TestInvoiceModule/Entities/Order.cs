@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace TestInvoiceModule
 {
+    /// <summary>
+    /// Class <see cref="Order`1"/> models order data.
+    /// </summary>
     public class Order
     {
         public int id;
@@ -13,6 +15,9 @@ namespace TestInvoiceModule
         public List<OrderProduct> orderProducts;
         public decimal totalAmount;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Order`1"/> class.
+        /// </summary>
         public Order(int id, Client client, DateTime orderDate, List<OrderProduct> orderProducts)
         {
             this.id = id;
@@ -23,6 +28,9 @@ namespace TestInvoiceModule
             GetTotalAmount();
         }
 
+        /// <summary>
+        /// Calculates total cost of the whole order.
+        /// </summary>
         private void GetTotalAmount()
         {
             totalAmount = 0;
