@@ -17,13 +17,17 @@ namespace TestInvoiceModule
             int orderCount;
             if (args.Length == 0)
             {
-                Console.Write("No commands provided. Use command '--help' to get instructions on how to use this module.");
-                logger.Debug("No commands provided. Program shutdown.");
+                logger.Info("No commands provided. Use --help to get instructions on how to use this module.");
+                logger.Debug("Program shutdown.");
                 return;
             }
             else if (args[0].Equals("--help"))
             {
-                Console.Write("insert help instructions here");
+                logger.Info("This module generates multiple random invoices in form of files in .pdf format in the current folder and sends them to the test mail address.\n");
+                logger.Info("Usage:");
+                logger.Info("[number-without-brackets] - Generates a specified number of random invoices in the current folder. " +
+                    "After generation sends invoices to test mail address and then deletes them from the folder.");
+                logger.Info("[--h] - Displays this help information.\n");
                 logger.Debug("Help information printed. Program shutdown.");
                 return;
             }
