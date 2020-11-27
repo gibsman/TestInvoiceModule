@@ -24,13 +24,14 @@ namespace TestInvoiceModule
     public class MailManager : IMailManager
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        IMailConfiguration mailConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MailManager`1"/> class.
         /// </summary>
-        public MailManager()
+        public MailManager(IMailConfiguration mailConfig)
         {
-
+            this.mailConfig = mailConfig;
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace TestInvoiceModule
             Task[] mailTasks = new Task[orders.Count];
             for (int i = 0; i < orders.Count; i++)
             {
-                mailTasks[i] = SendMail(orders[i].id.ToString(), orders[i].client.name, ConfigurationManager.AppSettings["TestMail"]);
+                mailTasks[i] = SendMail(orders[i].id.ToString(), orders[i].client.name);
             }
             Task.WaitAll(mailTasks);
         }
@@ -54,7 +55,7 @@ namespace TestInvoiceModule
         /// <param name="clientName">Name of a client.</param>
         /// <param name="recipientMail">Test email address.</param>
         /// <returns></returns>
-        private async Task SendMail(string orderNum, string clientName, string recipientMail)
+        private async Task SendMail(string orderNum, string clientName)
         {
             string filename = orderNum + ".pdf";
             if (!File.Exists(filename))
@@ -62,8 +63,8 @@ namespace TestInvoiceModule
                 throw new FileNotFoundException("File " + filename + " does not exist.");
             }
             var mailMessage = new MimeMessage();
-            mailMessage.From.Add(new MailboxAddress("Placeholder Company", ConfigurationManager.AppSettings["UserMail"]));
-            mailMessage.To.Add(new MailboxAddress(clientName, recipientMail));
+            mailMessage.From.Add(new MailboxAddress("Placeholder Company", mailConfig.SmtpUserName));
+            mailMessage.To.Add(new MailboxAddress(clientName, mailConfig.ClientMail));
             mailMessage.Subject = "Invoice For Order №" + orderNum;
             var pdfStream = File.OpenRead(filename);
             var attachment = new MimePart(MimeTypes.GetMimeType(filename))
@@ -81,8 +82,7 @@ namespace TestInvoiceModule
                 await client.ConnectAsync("smtp.mail.ru", 465, SecureSocketOptions.SslOnConnect);
                 try
                 {
-                    await client.AuthenticateAsync(ConfigurationManager.AppSettings["UserMail"],
-                        ConfigurationManager.AppSettings["Password"]);
+                    await client.AuthenticateAsync(mailConfig.SmtpUserName, mailConfig.SmtpPassword);
                 }
                 catch
                 {

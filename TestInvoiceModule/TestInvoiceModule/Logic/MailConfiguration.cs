@@ -9,7 +9,6 @@ namespace TestInvoiceModule
         string SmtpUserName { get; set; }
 
         string SmtpPassword { get; set; }
-
     }
 
     class MailConfiguration : IMailConfiguration

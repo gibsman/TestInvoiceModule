@@ -18,6 +18,7 @@ namespace TestInvoiceModule
         {
             //this means that whenever Ninject encounters interface, 
             //it will try to resolve it with bound class object
+            Bind<IMailConfiguration>().To<MailConfiguration>();
             Bind<IInvoiceGenerator>().To<InvoiceGenerator>();
             Bind<IMailManager>().To<MailManager>();
             Bind<ITestData>().To<RandomTestData>();
