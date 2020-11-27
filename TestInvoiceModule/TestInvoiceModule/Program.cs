@@ -23,11 +23,17 @@ namespace TestInvoiceModule
             }
             else if (args[0].Equals("--help"))
             {
-                logger.Info("This module generates multiple random invoices in form of files in .pdf format in the current folder and sends them to the test mail address.\n");
+                logger.Info("This module generates multiple random invoices in form of files in .pdf format in the current folder and sends them to the recipient mail address. " +
+                    "Said mail address, as well as sender's mail address and password must be provided through assignment of following environmental variables:");
+                logger.Info("CLIENT_MAIL - recipient email address.");
+                logger.Info("SMTP_USER_NAME - sender email address.");
+                logger.Info("SMTP_PASSWORD - password for sender email address.");
+                logger.Info("For more information on how to set up these environmental variables visit following page:");
+                logger.Info("https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#windows \n");
                 logger.Info("Usage:");
                 logger.Info("[number-without-brackets] - Generates a specified number of random invoices in the current folder. " +
                     "After generation sends invoices to test mail address and then deletes them from the folder.");
-                logger.Info("[--h] - Displays this help information.\n");
+                logger.Info("--h - Displays this help information.\n");
                 logger.Debug("Help information printed. Program shutdown.");
                 return;
             }
