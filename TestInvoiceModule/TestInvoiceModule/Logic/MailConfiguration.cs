@@ -2,6 +2,9 @@
 
 namespace TestInvoiceModule
 {
+    /// <summary>
+    /// Contains mailing information.
+    /// </summary>
     public interface IMailConfiguration
     {
         string ClientMail { get; set; }
@@ -11,6 +14,9 @@ namespace TestInvoiceModule
         string SmtpPassword { get; set; }
     }
 
+    /// <summary>
+    /// Class <see cref="MailConfiguration`1"/> contains properties with information for sending mail.
+    /// </summary>
     class MailConfiguration : IMailConfiguration
     {
         public string ClientMail { get; set; }
@@ -19,6 +25,10 @@ namespace TestInvoiceModule
 
         public string SmtpPassword { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MailConfiguration`1"/> class 
+        /// by loading environment variables into properties.
+        /// </summary>
         public MailConfiguration()
         {
             ClientMail = Environment.GetEnvironmentVariable("CLIENT_MAIL", EnvironmentVariableTarget.Machine);
