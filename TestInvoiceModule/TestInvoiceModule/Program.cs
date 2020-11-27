@@ -14,13 +14,28 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             logger.Debug("Program initialized");
-            logger.Debug("Waiting for user input for order count");
-            Console.Write("Enter number of random orders to generate:");
             int orderCount;
-            while (!int.TryParse(Console.ReadLine(), out orderCount))
+            if (args.Length == 0)
             {
-                Console.Write("Incorrect input! Please enter a valid number:");
-                logger.Debug("Input string is non numerical. Waiting for another input");
+                logger.Info("No commands provided. Use --help to get instructions on how to use this module.");
+                logger.Debug("Program shutdown.");
+                return;
+            }
+            else if (args[0].Equals("--help"))
+            {
+                logger.Info("This module generates multiple random invoices in form of files in .pdf format in the current folder and sends them to the test mail address.\n");
+                logger.Info("Usage:");
+                logger.Info("[number-without-brackets] - Generates a specified number of random invoices in the current folder. " +
+                    "After generation sends invoices to test mail address and then deletes them from the folder.");
+                logger.Info("[--h] - Displays this help information.\n");
+                logger.Debug("Help information printed. Program shutdown.");
+                return;
+            }
+            else if (!int.TryParse(args[0], out orderCount))
+            {
+                Console.Write("Unknown command. Use --help in order to get information for usage.");
+                logger.Debug("Unknown command. Program shutdown.");
+                return;
             }
             logger.Debug("Number {0} is accepted as order count", orderCount);
             IKernel kernel = new StandardKernel();
@@ -29,7 +44,7 @@ namespace TestInvoiceModule
             //gets OrderProcessor object with all dependencies resolved
             //which is accomplished through type bindings in Bindings class
             var orderProcessor = kernel.Get<IOrderProcessor>();
-            logger.Info("Generating random orders...");
+            logger.Info("Generating {0} random orders...", orderCount);
             try
             {
                 orderProcessor.GenerateOrders(orderCount);
