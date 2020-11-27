@@ -1,4 +1,6 @@
-﻿namespace TestInvoiceModule
+﻿using System;
+
+namespace TestInvoiceModule
 {
     public interface IMailConfiguration
     {
@@ -20,7 +22,9 @@
 
         public MailConfiguration()
         {
-
+            ClientMail = Environment.GetEnvironmentVariable("CLIENT_MAIL", EnvironmentVariableTarget.Machine);
+            SmtpUserName = Environment.GetEnvironmentVariable("SMTP_USER_NAME", EnvironmentVariableTarget.Machine);
+            SmtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD", EnvironmentVariableTarget.Machine);
         }
     }
 }
