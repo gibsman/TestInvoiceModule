@@ -14,7 +14,7 @@ namespace TestInvoiceModule
         static void Main(string[] args)
         {
             logger.Debug("Program initialized");
-            int orderCount = 0;
+            int orderCount;
             if (args.Length == 0)
             {
                 Console.Write("No commands provided. Use command '--help' to get instructions on how to use this module.");
